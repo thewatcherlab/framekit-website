@@ -1,0 +1,62 @@
+---
+import "../styles/global.css";
+import { site } from "../config/site";
+import SiteHeader from "../components/site-header.astro";
+import SiteFooter from "../components/site-footer.astro";
+import ChatWidget from "../components/chat-widget.astro";
+
+interface Props {
+	title?: string;
+	description?: string;
+	showChat?: boolean;
+	noindex?: boolean;
+}
+
+const { title, description, showChat = true, noindex = false } = Astro.props;
+const pageTitle = title ? `${title} — ${site.name}` : `${site.name} — ${site.tagline}`;
+const pageDescription = description ?? site.description;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="description" content={pageDescription} />
+		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#141414" />
+		{noindex && <meta name="robots" content="noindex" />}
+		<link rel="canonical" href={canonical} />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap"
+			rel="stylesheet"
+		/>
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={pageDescription} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonical} />
+		<meta property="og:site_name" content={site.name} />
+		<title>{pageTitle}</title>
+		<slot name="head" />
+	</head>
+	<body>
+		<a
+			href="#main"
+			class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-6 focus:z-50 focus:inline-flex focus:h-11 focus:items-center focus:rounded-buttons focus:bg-graphite-ink focus:px-[18px] focus:text-body-sm focus:text-on-action"
+		>
+			Skip to content
+		</a>
+		<div class="mx-auto flex w-full min-w-0 max-w-page flex-1 flex-col border-x border-hairline bg-linen-canvas">
+			<SiteHeader />
+			<main id="main" tabindex="-1">
+				<slot />
+			</main>
+			<SiteFooter />
+		</div>
+		{showChat && <ChatWidget />}
+	</body>
+</html>

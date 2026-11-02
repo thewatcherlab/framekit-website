@@ -1,0 +1,398 @@
+---
+/*
+ * The bug report form. Videos go first, to R2 in parts through /api/report/upload; then it
+ * posts multipart form data to frame.reportEndpoint with title, email, description,
+ * attachments (the images) and videos (the R2 keys). Files are checked here against
+ * frame.reportLimits first; the server checks them again. "company" is a honeypot: people
+ * never see it, so a filled one means a bot.
+ */
+import { frame } from "../../config/frame";
+
+const { files, imageBytes, imageTotalBytes, videoBytes, partBytes } = frame.reportLimits;
+const mb = (bytes: number) => `${Math.round(bytes / 1024 / 1024)} MB`;
+---
+
+<form
+	class="report-form"
+	action={frame.reportEndpoint}
+	method="post"
+	enctype="multipart/form-data"
+	novalidate
+	data-report-form
+	data-max-files={files}
+	data-max-image={imageBytes}
+	data-max-video={videoBytes}
+	data-max-image-total={imageTotalBytes}
+	data-part-bytes={partBytes}
+	data-upload={`${frame.reportEndpoint}/upload`}
+	data-email={frame.email}
+>
+	<div class="field">
+		<label for="report-title">Title</label>
+		<input
+			id="report-title"
+			name="title"
+			type="text"
+			required
+			maxlength="120"
+			autocomplete="off"
+			placeholder="Scrolling capture stops halfway down the page"
+			aria-describedby="report-title-error"
+		/>
+		<p class="field-error" id="report-title-error" hidden></p>
+	</div>
+
+	<div class="field">
+		<label for="report-email">Email</label>
+		<input
+			id="report-email"
+			name="email"
+			type="email"
+			required
+			autocomplete="email"
+			spellcheck="false"
+			placeholder="you@example.com"
+			aria-describedby="report-email-hint report-email-error"
+		/>
+		<p class="field-hint" id="report-email-hint">Only used to reply about this bug.</p>
+		<p class="field-error" id="report-email-error" hidden></p>
+	</div>
+
+	<div class="field">
+		<label for="report-description">Description</label>
+		<textarea
+			id="report-description"
+			name="description"
+			required
+			rows="6"
+			maxlength="5000"
+			aria-describedby="report-description-hint report-description-error"></textarea>
+		<p class="field-hint" id="report-description-hint">
+			What you did, what you expected, and what happened instead. Your macOS and FrameKit versions help too.
+		</p>
+		<p class="field-error" id="report-description-error" hidden></p>
+	</div>
+
+	<div class="field">
+		<span class="field-label" id="report-files-label">Screenshots or recordings <span class="optional">Optional</span></span>
+		<label class="dropzone" data-dropzone>
+			<input
+				class="sr-only"
+				id="report-files"
+				name="attachments"
+				type="file"
+				multiple
+				accept="image/*,video/*"
+				aria-labelledby="report-files-label"
+				aria-describedby="report-files-hint report-files-error"
+			/>
+			<svg viewBox="0 0 24 24" aria-hidden="true">
+				<path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5" />
+				<path d="M4 14v3.5A2.5 2.5 0 0 0 6.5 20h11a2.5 2.5 0 0 0 2.5-2.5V14" />
+			</svg>
+			<span class="dropzone-title">Drop files here, or <span class="dropzone-link">browse</span></span>
+			<span class="dropzone-hint" id="report-files-hint">
+				Images up to {mb(imageBytes)} ({mb(imageTotalBytes)} in all), videos up to {mb(videoBytes)}. Up to {files} files.
+			</span>
+		</label>
+		<p class="field-error" id="report-files-error" hidden></p>
+		<ul class="file-list" data-file-list aria-label="Attached files"></ul>
+	</div>
+
+	<div class="honeypot" aria-hidden="true">
+		<label for="report-company">Company</label>
+		<input id="report-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+	</div>
+
+	<div class="form-actions">
+		<button class="submit-btn" type="submit" data-submit>Send report</button>
+		<p class="form-status" role="status" aria-live="polite" data-status></p>
+	</div>
+</form>
+
+<div class="report-sent" data-sent hidden tabindex="-1">
+	<h2>Thanks, the report is on its way.</h2>
+	<p>We read every report. If we need more detail, we’ll reply to the email you gave.</p>
+	<p><a href="/report">Report another bug</a></p>
+</div>
+
+<script>
+	const form = document.querySelector<HTMLFormElement>("[data-report-form]");
+
+	if (form) {
+		const maxFiles = Number(form.dataset.maxFiles);
+		const maxImage = Number(form.dataset.maxImage);
+		const maxVideo = Number(form.dataset.maxVideo);
+		const maxImageTotal = Number(form.dataset.maxImageTotal);
+		const partBytes = Number(form.dataset.partBytes);
+		const uploadUrl = form.dataset.upload!;
+		const input = form.querySelector<HTMLInputElement>("#report-files")!;
+		const dropzone = form.querySelector<HTMLElement>("[data-dropzone]")!;
+		const list = form.querySelector<HTMLUListElement>("[data-file-list]")!;
+		const submit = form.querySelector<HTMLButtonElement>("[data-submit]")!;
+		const status = form.querySelector<HTMLElement>("[data-status]")!;
+		const sent = document.querySelector<HTMLElement>("[data-sent]")!;
+
+		let files: File[] = [];
+		let previews: string[] = [];
+
+		const size = (bytes: number) =>
+			bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+		const setError = (id: string, message: string) => {
+			const error = document.getElementById(`${id}-error`)!;
+			const field = document.getElementById(id);
+			error.textContent = message;
+			error.hidden = !message;
+			if (field && id !== "report-files") field.setAttribute("aria-invalid", String(!!message));
+		};
+
+		// Keep the real input in step with the list, so the form still holds every file.
+		const sync = () => {
+			const transfer = new DataTransfer();
+			files.forEach((file) => transfer.items.add(file));
+			input.files = transfer.files;
+		};
+
+		const render = () => {
+			previews.forEach((url) => URL.revokeObjectURL(url));
+			previews = [];
+			list.replaceChildren(
+				...files.map((file, index) => {
+					const item = document.createElement("li");
+					item.className = "file-item";
+
+					const url = URL.createObjectURL(file);
+					previews.push(url);
+					const thumb = document.createElement(file.type.startsWith("video/") ? "video" : "img");
+					thumb.className = "file-thumb";
+					thumb.setAttribute("src", url);
+					thumb.setAttribute("alt", "");
+					if (thumb instanceof HTMLVideoElement) {
+						thumb.muted = true;
+						thumb.preload = "metadata";
+					}
+
+					const meta = document.createElement("span");
+					meta.className = "file-meta";
+					const name = document.createElement("span");
+					name.className = "file-name";
+					name.textContent = file.name;
+					const detail = document.createElement("span");
+					detail.className = "file-size";
+					detail.textContent = `${file.type.startsWith("video/") ? "Video" : "Image"} · ${size(file.size)}`;
+					meta.append(name, detail);
+
+					const remove = document.createElement("button");
+					remove.type = "button";
+					remove.className = "file-remove";
+					remove.setAttribute("aria-label", `Remove ${file.name}`);
+					remove.innerHTML =
+						'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" /></svg>';
+					remove.addEventListener("click", () => {
+						files.splice(index, 1);
+						setError("report-files", "");
+						sync();
+						render();
+						input.focus();
+					});
+
+					item.append(thumb, meta, remove);
+					return item;
+				}),
+			);
+		};
+
+		const addFiles = (incoming: Iterable<File>) => {
+			const problems: string[] = [];
+			for (const file of incoming) {
+				const isImage = file.type.startsWith("image/");
+				const isVideo = file.type.startsWith("video/");
+				if (!isImage && !isVideo) {
+					problems.push(`${file.name} isn’t an image or a video.`);
+				} else if (isImage && file.size > maxImage) {
+					problems.push(`${file.name} is over ${size(maxImage)}.`);
+				} else if (isVideo && file.size > maxVideo) {
+					problems.push(`${file.name} is over ${size(maxVideo)}.`);
+				} else if (files.some((f) => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)) {
+					continue;
+				} else if (files.length >= maxFiles) {
+					problems.push(`Only ${maxFiles} files fit in one report.`);
+					break;
+				} else if (
+					isImage &&
+					files.filter((f) => f.type.startsWith("image/")).reduce((sum, f) => sum + f.size, file.size) > maxImageTotal
+				) {
+					problems.push(`${file.name} would take the images over ${size(maxImageTotal)} in all.`);
+				} else {
+					files.push(file);
+				}
+			}
+			setError("report-files", problems.join(" "));
+			sync();
+			render();
+		};
+
+		input.addEventListener("change", () => addFiles(Array.from(input.files ?? [])));
+
+		["dragenter", "dragover"].forEach((type) =>
+			dropzone.addEventListener(type, (event) => {
+				event.preventDefault();
+				dropzone.classList.add("is-dragging");
+			}),
+		);
+		["dragleave", "drop"].forEach((type) =>
+			dropzone.addEventListener(type, () => dropzone.classList.remove("is-dragging")),
+		);
+		dropzone.addEventListener("drop", (event) => {
+			event.preventDefault();
+			if (event.dataTransfer?.files.length) addFiles(Array.from(event.dataTransfer.files));
+		});
+
+		const fields = [
+			{ id: "report-title", check: (v: string) => (v ? "" : "Add a short title.") },
+			{
+				id: "report-email",
+				check: (v: string, el: HTMLInputElement) =>
+					!v ? "Add your email so we can reply." : el.validity.typeMismatch ? "This email doesn’t look right." : "",
+			},
+			{ id: "report-description", check: (v: string) => (v ? "" : "Describe what happened.") },
+		];
+
+		// Errors show after a field is left or the form is sent, and clear as soon as it's fixed.
+		fields.forEach(({ id }) => {
+			const el = document.getElementById(id) as HTMLInputElement;
+			el.addEventListener("input", () => {
+				if (el.getAttribute("aria-invalid") === "true") validate(id);
+			});
+			el.addEventListener("blur", () => {
+				if (el.value.trim()) validate(id);
+			});
+		});
+
+		const validate = (only?: string) => {
+			let firstInvalid: HTMLElement | null = null;
+			for (const { id, check } of fields) {
+				if (only && id !== only) continue;
+				const el = document.getElementById(id) as HTMLInputElement;
+				const message = check(el.value.trim(), el);
+				setError(id, message);
+				if (message && !firstInvalid) firstInvalid = el;
+			}
+			return firstInvalid;
+		};
+
+		/** A failed request, carrying the server's message when it sent one. */
+		const failed = async (response: Response) => {
+			const body = await response.json().catch(() => null);
+			return new Error(typeof body?.error === "string" ? body.error : "");
+		};
+
+		const post = async (url: string, body: unknown) => {
+			const response = await fetch(url, {
+				method: "POST",
+				headers: { "content-type": "application/json" },
+				body: JSON.stringify(body),
+			});
+			if (!response.ok) throw await failed(response);
+			return response.json();
+		};
+
+		// Videos already in R2, so trying again after a failure doesn't upload them twice.
+		const uploaded = new Map<File, string>();
+
+		/** Puts one video in R2 part by part, reporting progress from 0 to 1. Returns its key. */
+		const uploadVideo = async (file: File, progress: (done: number) => void) => {
+			const { key, uploadId } = await post(`${uploadUrl}?step=create`, {
+				name: file.name,
+				type: file.type,
+				size: file.size,
+			});
+			try {
+				const parts: { partNumber: number; etag: string }[] = [];
+				const count = Math.ceil(file.size / partBytes);
+				for (let part = 1; part <= count; part++) {
+					const query = new URLSearchParams({ step: "part", key, uploadId, part: String(part) });
+					const response = await fetch(`${uploadUrl}?${query}`, {
+						method: "PUT",
+						body: file.slice((part - 1) * partBytes, part * partBytes),
+					});
+					if (!response.ok) throw await failed(response);
+					parts.push(await response.json());
+					progress(part / count);
+				}
+				await post(`${uploadUrl}?step=complete`, { key, uploadId, parts });
+				return key as string;
+			} catch (error) {
+				post(`${uploadUrl}?step=abort`, { key, uploadId }).catch(() => {});
+				throw error;
+			}
+		};
+
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
+			status.textContent = "";
+			status.classList.remove("is-error");
+
+			const invalid = validate();
+			if (invalid) {
+				invalid.focus();
+				return;
+			}
+
+			const showSent = () => {
+				form.hidden = true;
+				sent.hidden = false;
+				sent.focus();
+			};
+
+			// A filled honeypot is a bot: pretend it worked.
+			if ((form.elements.namedItem("company") as HTMLInputElement).value) return showSent();
+
+			submit.disabled = true;
+			try {
+				const videos = files.filter((file) => file.type.startsWith("video/"));
+				const pending = videos.filter((file) => !uploaded.has(file));
+				if (pending.length) status.textContent = `Uploading ${pending.length === 1 ? "the video" : `${pending.length} videos`}…`;
+				for (const [index, file] of pending.entries()) {
+					const label = pending.length === 1 ? "Uploading video" : `Uploading video ${index + 1} of ${pending.length}`;
+					submit.textContent = `${label}…`;
+					const key = await uploadVideo(file, (done) => {
+						submit.textContent = `${label} · ${Math.round(done * 100)}%`;
+					});
+					uploaded.set(file, key);
+				}
+
+				submit.textContent = "Sending…";
+				status.textContent = "";
+				const data = new FormData(form);
+				data.delete("attachments");
+				files.filter((file) => file.type.startsWith("image/")).forEach((image) => data.append("attachments", image));
+				videos.forEach((video) => data.append("videos", uploaded.get(video)!));
+
+				const response = await fetch(form.action, { method: "POST", body: data });
+				// The server says what was wrong when it can, like a file over the limit.
+				if (!response.ok) throw await failed(response);
+				showSent();
+			} catch (error) {
+				// A TypeError is the network failing; its message is the browser's, not ours.
+				const fromServer = error instanceof Error && !(error instanceof TypeError) && error.message;
+				const reason = fromServer ? `${error.message} ` : "Couldn’t send the report. ";
+				status.classList.add("is-error");
+				status.innerHTML = "";
+				status.append(
+					reason,
+					"Try again, or email it to ",
+					Object.assign(document.createElement("a"), {
+						href: `mailto:${form.dataset.email}?subject=FrameKit%20bug`,
+						textContent: form.dataset.email,
+					}),
+					".",
+				);
+			} finally {
+				submit.disabled = false;
+				submit.textContent = "Send report";
+			}
+		});
+	}
+</script>

@@ -1,0 +1,38 @@
+---
+import { site } from "../config/site";
+import Container from "./container.astro";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-hairline">
+	<Container class="pt-loose pb-nav">
+		<p
+			class="overflow-hidden font-serif text-[clamp(72px,16vw,168px)] leading-[0.85] text-charcoal-body/15 italic"
+			aria-hidden="true"
+		>
+			{site.name}
+		</p>
+		<div class="mt-stack grid gap-nav sm:grid-cols-2 lg:grid-cols-4">
+			{
+				site.footer.map((column) => (
+					<nav aria-label={column.title}>
+						<p class="text-caption text-charcoal-body">{column.title}</p>
+						<ul class="mt-tight flex flex-col gap-tight">
+							{column.links.map((link) => (
+								<li>
+									<a href={link.href} class="text-caption text-iron-nav hover:text-charcoal-body">
+										{link.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</nav>
+				))
+			}
+		</div>
+		<p class="mt-stack text-small text-slate-caption">
+			© {year} {site.name}. All rights reserved.
+		</p>
+	</Container>
+</footer>

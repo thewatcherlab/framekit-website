@@ -1,0 +1,30 @@
+---
+import MarketingLayout from "../layouts/marketing-layout.astro";
+import AccordionItem from "../components/marketing/accordion-item.astro";
+import { changelog } from "../config/frame";
+---
+
+<MarketingLayout title="Changelog — FrameKit" description="What changed in FrameKit, newest first.">
+	<article class="prose-page">
+		<h1>Changelog</h1>
+		<div class="accordion">
+			{
+				changelog.map((entry, index) => (
+					<AccordionItem title={`Version ${entry.version}`} meta={entry.date} open={index === 0}>
+						<p>{entry.description}</p>
+						{entry.features?.map((group) => (
+							<section class="changelog-group">
+								<h3>{group.title}</h3>
+								<ul>
+									{group.items.map((item) => (
+										<li>{item}</li>
+									))}
+								</ul>
+							</section>
+						))}
+					</AccordionItem>
+				))
+			}
+		</div>
+	</article>
+</MarketingLayout>

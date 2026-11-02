@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../layouts/base-layout.astro";
+import { site } from "../config/site";
+import Button from "../components/button.astro";
+import Card from "../components/card.astro";
+import Container from "../components/container.astro";
+---
+
+<BaseLayout title="Log in" description={`Sign in to ${site.name}.`} showChat={false}>
+	<Container class="py-section">
+		<Card pad="stack" class="mx-auto w-full max-w-md">
+			<h1 class="text-heading-sm text-charcoal-body">Log in</h1>
+			<p class="mt-tight text-body-sm text-slate-caption">
+				Use your work email. We’ll send a sign-in link.
+			</p>
+			<form data-login-form class="mt-stack flex flex-col gap-nav" method="post" action="/login">
+				<div class="flex flex-col gap-inline">
+					<label for="email" class="text-caption text-charcoal-body">Work email</label>
+					<input
+						id="email"
+						class="field"
+						name="email"
+						type="email"
+						inputmode="email"
+						autocomplete="email"
+						placeholder="you@company.com"
+						required
+					/>
+				</div>
+				<Button type="submit" class="w-full">Email me a link</Button>
+				<p data-login-notice hidden role="status" class="text-caption text-charcoal-body">
+					This starter does not send email yet. Connect your auth provider, then point this form at it.
+				</p>
+			</form>
+		</Card>
+	</Container>
+</BaseLayout>
+
+<script>
+	const form = document.querySelector("[data-login-form]");
+	if (form instanceof HTMLFormElement) {
+		form.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const notice = form.querySelector("[data-login-notice]");
+			if (notice instanceof HTMLElement) notice.hidden = false;
+		});
+	}
+</script>

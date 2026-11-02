@@ -1,0 +1,53 @@
+---
+import DownloadButton from "./download-button.astro";
+import { frame } from "../../config/frame";
+---
+
+<header class="site-header">
+	<div class="header-bar">
+		<div class="brand">
+			<a class="logo" href="/" aria-label="FrameKit home">
+				<span class="logo-mark" aria-hidden="true">
+					<svg class="logo-glyph" viewBox="0 0 40 40">
+						<g class="logo-corners" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+							<path d="M9 15v-3a3 3 0 0 1 3-3h3"></path>
+							<path d="M25 9h3a3 3 0 0 1 3 3v3"></path>
+							<path d="M31 25v3a3 3 0 0 1-3 3h-3"></path>
+							<path d="M15 31h-3a3 3 0 0 1-3-3v-3"></path>
+						</g>
+						<circle class="logo-lens" cx="20" cy="20" r="5"></circle>
+					</svg>
+				</span>
+				<span class="logo-name">{frame.name}</span>
+			</a>
+			<a class="version" href="/changelog" aria-label={`Version ${frame.version}, view changelog`}>v{frame.version}</a>
+		</div>
+		<nav class="header-nav" aria-label="Primary">
+			<a class="nav-link faqs" href="/faqs" aria-label="Frequently asked questions">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path
+						fill="currentColor"
+						d="M7.16 21.89c.37 0 .65-.2 1.1-.61L11.7 18.13h6.44c2.84 0 4.36-1.56 4.36-4.35V6.48c0-2.79-1.52-4.37-4.36-4.37H5.86C3.02 2.11 1.5 3.68 1.5 6.48v7.3c0 2.8 1.52 4.35 4.36 4.35h.45v2.77c0 .59.31.99.85.99Z"
+					></path>
+					<path d="M6.6 8.2h10.2M6.6 11.6H12.4" fill="none" style="stroke: var(--color-orange-75)" stroke-width="1.6" stroke-linecap="round"></path>
+				</svg>
+				<span>FAQs</span>
+			</a>
+			<a class="nav-link changelog" href="/changelog" aria-label="Changelog">
+				<svg viewBox="0 0 24 24" aria-hidden="true">
+					<path
+						fill="currentColor"
+						d="M6.3.5h11.4C19.92.5 21.02 1.64 21.02 3.87v16.27c0 2.24-1.1 3.36-3.32 3.36H6.3c-2.22 0-3.32-1.12-3.32-3.36V3.87C2.98 1.64 4.08.5 6.3.5Z"
+					></path>
+					<path d="M8 8.2h8M8 12h8M8 15.8h5" fill="none" style="stroke: var(--color-orange-75)" stroke-width="1.6" stroke-linecap="round"></path>
+				</svg>
+				<span>Changelog</span>
+			</a>
+			{frame.directDownload ? (
+				<DownloadButton href="/download" tone="soft" />
+			) : (
+				<DownloadButton href={frame.gumroad} label="Get on Gumroad" tone="gumroad" icon="gumroad" />
+			)}
+		</nav>
+	</div>
+</header>

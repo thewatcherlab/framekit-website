@@ -1,0 +1,49 @@
+---
+import { site } from "../config/site";
+import Button from "./button.astro";
+import Icon from "./icon.astro";
+---
+
+<ul class="grid grid-cols-1 gap-nav sm:grid-cols-2 lg:grid-cols-4">
+	{
+		site.pricing.map((plan) => (
+			<li class="min-w-0">
+				<article
+					class:list={[
+						"flex h-full flex-col rounded-cards border p-card",
+						plan.featured
+							? "border-lime-pulse/40 bg-[linear-gradient(165deg,rgb(61_204_199/0.22),rgb(28_28_28)_48%)]"
+							: "border-hairline bg-frosted-white",
+					]}
+				>
+					{plan.featured ? (
+						<p class="w-fit rounded-buttons bg-graphite-ink px-2.5 py-1 text-small font-medium text-on-action">
+							Most teams
+						</p>
+					) : (
+						<p class="invisible text-small" aria-hidden="true">
+							Most teams
+						</p>
+					)}
+					<h3 class="mt-inline text-subheading text-charcoal-body">{plan.name}</h3>
+					<p class="mt-tight font-serif text-heading-sm text-charcoal-body">{plan.price}</p>
+					<p class="mt-inline text-caption text-slate-caption">{plan.period}</p>
+					<p class="mt-card text-caption text-charcoal-body">{plan.description}</p>
+					<ul class="mt-nav flex flex-1 flex-col gap-element">
+						{plan.features.map((feature) => (
+							<li class="flex items-start gap-inline text-body-sm text-charcoal-body">
+								<Icon name="check" class="mt-0.5 size-4 shrink-0 text-lime-pulse" />
+								{feature}
+							</li>
+						))}
+					</ul>
+					<div class="mt-nav">
+						<Button href={plan.cta.href} variant={plan.cta.variant} class="w-full">
+							{plan.cta.label}
+						</Button>
+					</div>
+				</article>
+			</li>
+		))
+	}
+</ul>

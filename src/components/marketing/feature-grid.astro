@@ -1,0 +1,256 @@
+---
+/*
+ * FrameKit's features as a bento grid. The four big tiles each carry a small scene of the
+ * feature; the small tiles keep an icon whose hover motion shows what the feature does.
+ */
+import { frame } from "../../config/frame";
+
+const card = "group flex flex-col overflow-hidden rounded-3xl border border-stone-200 bg-stone-50 p-6 sm:p-7";
+const title = "text-lg font-semibold tracking-tight text-stone-900";
+const body = "mt-2 max-w-sm text-[0.95rem] leading-relaxed text-pretty text-stone-600";
+const icon = "mb-5 size-10 overflow-visible text-stone-800";
+---
+
+<div class="feature-grid grid w-full gap-4 lg:px-8">
+	<!-- Scrolling capture: the page slides up under the capture frame and lands as one long image. -->
+	<article class:list={[card, "area-scroll md:flex-row md:items-center md:gap-8"]}>
+		<div class="md:flex-1">
+			<h2 class={title}>Scrolling capture</h2>
+			<p class={body}>Stitch a whole page into one long image while you scroll, or let Auto-Scroll scroll it for you.</p>
+		</div>
+		<div class="mt-8 flex items-end justify-center gap-5 md:mt-0 md:flex-1" aria-hidden="true">
+			<div class="relative h-40 w-44 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+				<div class="flex flex-col gap-2.5 p-4 transition duration-1000 ease-out group-hover:-translate-y-20">
+					<div class="h-12 rounded-lg bg-violet-100"></div>
+					<div class="h-2 w-4/5 rounded-full bg-stone-200"></div>
+					<div class="h-2 w-3/5 rounded-full bg-stone-200"></div>
+					<div class="h-2 w-full rounded-full bg-stone-200"></div>
+					<div class="h-10 rounded-lg bg-stone-100"></div>
+					<div class="h-2 w-2/3 rounded-full bg-stone-200"></div>
+					<div class="h-2 w-4/5 rounded-full bg-stone-200"></div>
+					<div class="h-2 w-1/2 rounded-full bg-stone-200"></div>
+					<div class="h-10 rounded-lg bg-stone-100"></div>
+				</div>
+				<div class="pointer-events-none absolute inset-2 rounded-xl border-2 border-dashed border-violet-400"></div>
+			</div>
+			<div class="flex flex-col items-center gap-2">
+				<div class="flex h-36 w-12 flex-col gap-1 rounded-lg border border-stone-200 bg-white p-1.5 shadow-sm">
+					<div class="h-4 rounded-sm bg-violet-100"></div>
+					<div class="h-1 w-4/5 rounded-full bg-stone-200"></div>
+					<div class="h-1 w-3/5 rounded-full bg-stone-200"></div>
+					<div class="h-3 rounded-sm bg-stone-100"></div>
+					<div class="h-1 w-2/3 rounded-full bg-stone-200"></div>
+					<div class="h-1 w-4/5 rounded-full bg-stone-200"></div>
+					<div class="h-3 rounded-sm bg-stone-100"></div>
+					<div class="h-1 w-1/2 rounded-full bg-stone-200"></div>
+					<div class="h-3 rounded-sm bg-stone-100"></div>
+				</div>
+				<span class="font-mono text-[0.7rem] text-stone-400">1440 × 6200 · PNG</span>
+			</div>
+		</div>
+	</article>
+
+	<!-- Text from the screen: the corners close in on the words. -->
+	<article class:list={[card, "area-text"]}>
+		<svg class={icon} viewBox="0 0 28 28" aria-hidden="true">
+			<g class="origin-center fill-none stroke-current stroke-[2px] transition duration-300 group-hover:scale-[0.86]" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M2 8V5.5A3.5 3.5 0 0 1 5.5 2H8"></path>
+				<path d="M20 2h2.5A3.5 3.5 0 0 1 26 5.5V8"></path>
+				<path d="M26 20v2.5a3.5 3.5 0 0 1-3.5 3.5H20"></path>
+				<path d="M8 26H5.5A3.5 3.5 0 0 1 2 22.5V20"></path>
+			</g>
+			<g class="fill-current">
+				<rect x="8" y="9" width="12" height="2.2" rx="1.1"></rect>
+				<rect x="8" y="13" width="9" height="2.2" rx="1.1" class="transition duration-300 group-hover:fill-violet-500"></rect>
+				<rect x="8" y="17" width="11" height="2.2" rx="1.1"></rect>
+			</g>
+		</svg>
+		<h2 class={title}>Text from the screen</h2>
+		<p class={body}>Draw a box around any words on screen and copy them as text.</p>
+	</article>
+
+	<!-- Markup editor: a shot with a box, a label, and an arrow that draws itself in. -->
+	<article class:list={[card, "area-markup"]}>
+		<h2 class={title}>Markup editor</h2>
+		<p class={body}>Point, box and label what matters, then copy or save the finished shot.</p>
+		<div class="mt-8 flex flex-1 flex-col items-center justify-end gap-4" aria-hidden="true">
+			<div class="relative w-full max-w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+				<div class="mb-3 flex gap-1.5">
+					<span class="size-2 rounded-full bg-stone-200"></span>
+					<span class="size-2 rounded-full bg-stone-200"></span>
+					<span class="size-2 rounded-full bg-stone-200"></span>
+				</div>
+				<div class="h-16 rounded-lg bg-stone-100"></div>
+				<div class="mt-3 flex gap-2">
+					<div class="h-12 flex-1 rounded-lg bg-stone-100"></div>
+					<div class="relative h-12 flex-1 rounded-lg bg-stone-100">
+						<div class="absolute -inset-1.5 rounded-xl border-2 border-violet-500"></div>
+					</div>
+				</div>
+				<div class="mt-3 h-2 w-3/4 rounded-full bg-stone-200"></div>
+				<svg class="absolute bottom-16 left-6 h-14 w-24 overflow-visible" viewBox="0 0 96 56">
+					<path
+						class="fill-none stroke-violet-500 stroke-[3px] transition-[stroke-dashoffset] duration-500 [stroke-dasharray:120] [stroke-dashoffset:120] group-hover:[stroke-dashoffset:0]"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						d="M4 52C30 50 62 34 86 10m0 0H72m14 0v14"
+					></path>
+				</svg>
+				<span class="absolute top-20 -left-3 rounded-full bg-violet-500 px-2.5 py-1 text-xs font-semibold text-white shadow">Fix this</span>
+			</div>
+			<div class="flex gap-1.5 rounded-full border border-stone-200 bg-white p-1.5 shadow-sm">
+				<span class="grid size-7 place-items-center rounded-full bg-violet-500 text-white">
+					<svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13 13 3m0 0H7m6 0v6"></path></svg>
+				</span>
+				<span class="grid size-7 place-items-center rounded-full text-stone-500">
+					<svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="3.5" width="11" height="9" rx="2"></rect></svg>
+				</span>
+				<span class="grid size-7 place-items-center rounded-full text-sm font-semibold text-stone-500">T</span>
+				<span class="grid size-7 place-items-center rounded-full text-stone-500">
+					<svg class="size-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12c2-6 4 2 6-3s3 0 4-2"></path></svg>
+				</span>
+			</div>
+		</div>
+	</article>
+
+	<!-- Floating preview: the cards fan out like the deck in the corner. -->
+	<article class:list={[card, "area-preview"]}>
+		<svg class={icon} viewBox="0 0 28 28" aria-hidden="true">
+			<rect x="6" y="5" width="16" height="11" rx="2.5" class="fill-current opacity-30 transition duration-300 group-hover:-translate-y-[3px]"></rect>
+			<rect x="4.5" y="8" width="19" height="13" rx="3" class="fill-current opacity-55 transition duration-300 group-hover:-translate-y-[1.5px]"></rect>
+			<rect x="3" y="11" width="22" height="14" rx="3.5" class="fill-current transition duration-300 group-hover:translate-y-[1px]"></rect>
+			<rect x="9.5" y="15.5" width="9" height="2.4" rx="1.2" class="fill-stone-50 opacity-0 transition duration-300 group-hover:opacity-100"></rect>
+			<rect x="9.5" y="19.3" width="9" height="2.4" rx="1.2" class="fill-stone-50 opacity-0 transition delay-75 duration-300 group-hover:opacity-100"></rect>
+		</svg>
+		<h2 class={title}>Floating preview</h2>
+		<p class={body}>Every capture waits in the corner. Copy it, save it, drag it into an app or open it in the editor.</p>
+	</article>
+
+	<!-- Screen recording: the record dot pulses. -->
+	<article class:list={[card, "area-record"]}>
+		<svg class={icon} viewBox="0 0 28 28" aria-hidden="true">
+			<rect x="2" y="4" width="24" height="17" rx="3.5" class="fill-none stroke-current stroke-[1.75px]"></rect>
+			<path d="M10 25h8" class="fill-none stroke-current stroke-[1.75px]" stroke-linecap="round"></path>
+			<circle cx="14" cy="12.5" r="5" class="origin-[50%_45%] fill-rose-400/40 transition duration-500 group-hover:scale-[1.6] group-hover:opacity-0"></circle>
+			<circle cx="14" cy="12.5" r="3.5" class="fill-rose-500"></circle>
+		</svg>
+		<h2 class={title}>Screen recording</h2>
+		<p class={body}>Record the screen with your camera, microphone and system audio.</p>
+	</article>
+
+	<!-- Notch teleprompter: the script rolls up out of the notch while the recording runs. -->
+	<article class:list={[card, "area-notch"]}>
+		<h2 class={title}>Notch teleprompter</h2>
+		<p class={body}>Your notes sit under the notch while you record, and stay out of the recording.</p>
+		<div class="mt-8 -mb-6 flex flex-1 items-end justify-center sm:-mb-7" aria-hidden="true">
+			<div class="w-full max-w-64 overflow-hidden rounded-t-2xl border border-b-0 border-stone-200 bg-white px-4 pb-6 shadow-sm">
+				<div class="mx-auto h-28 w-44 overflow-hidden rounded-b-3xl bg-stone-900 px-5 pt-4">
+					<div class="flex flex-col gap-2 transition duration-1000 ease-out group-hover:-translate-y-8">
+						<div class="h-1.5 w-full rounded-full bg-white"></div>
+						<div class="h-1.5 w-4/5 rounded-full bg-white/80"></div>
+						<div class="h-1.5 w-full rounded-full bg-white/60"></div>
+						<div class="h-1.5 w-2/3 rounded-full bg-white/45"></div>
+						<div class="h-1.5 w-5/6 rounded-full bg-white/30"></div>
+						<div class="h-1.5 w-3/5 rounded-full bg-white/20"></div>
+						<div class="h-1.5 w-4/5 rounded-full bg-white/15"></div>
+					</div>
+				</div>
+				<div class="mt-6 flex items-center justify-between">
+					<span class="flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600">
+						<span class="size-1.5 rounded-full bg-rose-500"></span>REC 00:12
+					</span>
+					<span class="text-xs text-stone-400">Not in recording</span>
+				</div>
+				<div class="mt-4 h-20 rounded-xl bg-stone-100"></div>
+			</div>
+		</div>
+	</article>
+
+	<!-- Recorder Studio: the frame zooms in on the cursor, with the zoom marked on the timeline. -->
+	<article class:list={[card, "area-studio md:flex-row md:items-center md:gap-8"]}>
+		<div class="md:flex-1">
+			<h2 class={title}>Recorder Studio</h2>
+			<p class={body}>Zoom in on the action, smooth the cursor, mask passwords and add captions, then export.</p>
+		</div>
+		<div class="mt-8 flex w-full flex-col items-center gap-3 md:mt-0 md:flex-1" aria-hidden="true">
+			<div class="relative aspect-[16/10] w-full max-w-72 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+				<div class="absolute inset-0 origin-[62%_60%] p-4 transition duration-700 ease-out group-hover:scale-[1.6]">
+					<div class="h-3 w-1/3 rounded-full bg-stone-200"></div>
+					<div class="mt-3 grid grid-cols-3 gap-2">
+						<div class="h-14 rounded-lg bg-stone-100"></div>
+						<div class="h-14 rounded-lg bg-stone-100"></div>
+						<div class="h-14 rounded-lg bg-violet-100"></div>
+					</div>
+					<div class="mt-3 h-2 w-1/2 rounded-full bg-stone-200"></div>
+					<svg class="absolute top-[56%] left-[60%] size-4 text-stone-900" viewBox="0 0 16 16"><path fill="currentColor" stroke="white" stroke-width="1" stroke-linejoin="round" d="M2 1.5 14 6.5 8.8 8.4 6.6 14 2 1.5Z"></path></svg>
+				</div>
+			</div>
+			<div class="relative h-8 w-full max-w-72 rounded-lg border border-stone-200 bg-white p-1">
+				<div class="flex h-full gap-1">
+					<div class="flex-[3] rounded bg-stone-100"></div>
+					<div class="flex flex-[2] items-center justify-center rounded bg-violet-500 text-[0.65rem] font-semibold text-white">Zoom</div>
+					<div class="flex-[3] rounded bg-stone-100"></div>
+				</div>
+				<div class="absolute -top-1 -bottom-1 left-[30%] w-0.5 rounded-full bg-stone-900 transition-[left] duration-700 ease-out group-hover:left-[70%]"></div>
+			</div>
+		</div>
+	</article>
+
+	<!-- Native app: the focus corners close in on the app. -->
+	<article class:list={[card, "area-native"]}>
+		<svg class={icon} viewBox="0 0 28 28" aria-hidden="true">
+			<rect x="3" y="3" width="22" height="22" rx="6" class="fill-current"></rect>
+			<g class="origin-center fill-none stroke-violet-400 stroke-[1.8px] transition duration-300 group-hover:scale-[0.82]" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M8 11V9.5A1.5 1.5 0 0 1 9.5 8H11"></path>
+				<path d="M17 8h1.5A1.5 1.5 0 0 1 20 9.5V11"></path>
+				<path d="M20 17v1.5a1.5 1.5 0 0 1-1.5 1.5H17"></path>
+				<path d="M11 20H9.5A1.5 1.5 0 0 1 8 18.5V17"></path>
+			</g>
+			<circle cx="14" cy="14" r="2.6" class="origin-center fill-violet-500 transition duration-300 group-hover:scale-125"></circle>
+		</svg>
+		<h2 class={title}>Native Mac app</h2>
+		<p class={body}>Lives in the menu bar and keeps your captures on your Mac. Made for {frame.requirement}.</p>
+	</article>
+</div>
+
+<style>
+	/* One column on phones, two on tablets, three on desktops. The big tiles span two cells. */
+	@media (min-width: 768px) {
+		.feature-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-areas:
+				"scroll scroll"
+				"markup notch"
+				"text preview"
+				"record native"
+				"studio studio";
+		}
+
+		.area-scroll { grid-area: scroll; }
+		.area-text { grid-area: text; }
+		.area-markup { grid-area: markup; }
+		.area-preview { grid-area: preview; }
+		.area-record { grid-area: record; }
+		.area-notch { grid-area: notch; }
+		.area-studio { grid-area: studio; }
+		.area-native { grid-area: native; }
+	}
+
+	@media (min-width: 1024px) {
+		.feature-grid {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			grid-template-areas:
+				"scroll scroll text"
+				"markup preview notch"
+				"markup record notch"
+				"studio studio native";
+		}
+	}
+
+	/* Reduced motion keeps the scenes and icons still. */
+	@media (prefers-reduced-motion: reduce) {
+		.feature-grid * {
+			transition: none !important;
+		}
+	}
+</style>

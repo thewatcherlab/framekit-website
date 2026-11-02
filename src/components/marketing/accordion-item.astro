@@ -1,0 +1,29 @@
+---
+/*
+ * One row of an accordion, built on <details> so it opens with the keyboard and reads right
+ * in screen readers without any script. Put rows inside an element with class "accordion".
+ * The open and close animation is in marketing.css.
+ */
+interface Props {
+	title: string;
+	/** Short text on the right of the title, like a date. */
+	meta?: string;
+	open?: boolean;
+}
+
+const { title, meta, open = false } = Astro.props;
+---
+
+<details class="accordion-item" open={open}>
+	<summary class="accordion-trigger">
+		<svg class="accordion-icon" viewBox="0 0 16 16" aria-hidden="true">
+			<path d="M2 8h12" />
+			<path class="accordion-icon-v" d="M8 2v12" />
+		</svg>
+		<span class="accordion-title">{title}</span>
+		{meta && <span class="accordion-meta">{meta}</span>}
+	</summary>
+	<div class="accordion-content">
+		<slot />
+	</div>
+</details>

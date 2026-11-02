@@ -1,0 +1,84 @@
+---
+import MarketingLayout from "../layouts/marketing-layout.astro";
+import DownloadButton from "../components/marketing/download-button.astro";
+import FeatureGrid from "../components/marketing/feature-grid.astro";
+import HeroShader from "../components/marketing/hero-shader.astro";
+import { frame } from "../config/frame";
+---
+
+<MarketingLayout scene>
+	<!-- The hero: copy and the capture stage over the live water. -->
+	<section class="scene" aria-labelledby="hero-title">
+		<HeroShader />
+		<div class="scene-inner">
+			<div class="hero">
+				<p class="hero-eyebrow">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path
+							d="M19.37 7.648c-.114.088-2.11 1.213-2.11 3.715 0 2.894 2.54 3.918 2.616 3.944-.011.062-.403 1.402-1.34 2.767-.834 1.201-1.706 2.4-3.032 2.4s-1.667-.77-3.198-.77c-1.492 0-2.022.796-3.235.796-1.214 0-2.06-1.112-3.033-2.477C4.911 16.42 4 13.93 4 11.566c0-3.791 2.465-5.802 4.891-5.802 1.29 0 2.364.847 3.173.847.77 0 1.972-.897 3.438-.897.556 0 2.553.05 3.867 1.934Zm-4.564-3.54c.607-.719 1.036-1.718 1.036-2.716 0-.138-.012-.279-.037-.392-.987.037-2.161.657-2.87 1.478-.555.632-1.074 1.63-1.074 2.643 0 .152.026.304.037.353.063.011.164.025.266.025.885 0 1.998-.593 2.642-1.39Z"
+						></path>
+					</svg>
+					Screenshots and screen recordings
+				</p>
+				<h1 id="hero-title" class="hero-title">
+					Every screen, framed.
+					<em class="hero-script">Finished on your Mac.</em>
+				</h1>
+				<p class="hero-lede">{frame.description}</p>
+				<div class="hero-actions">
+					{frame.directDownload && <DownloadButton href="/download" />}
+					<DownloadButton href={frame.gumroad} label="Get it on Gumroad" tone="gumroad" icon="gumroad" />
+				</div>
+				<ul class="hero-meta">
+					<li>{frame.price}, no account</li>
+					<li>Collects no data</li>
+					<li>{frame.requirement}</li>
+				</ul>
+			</div>
+
+			<!-- A demo recording, served from R2. The poster in public/videos is its first frame. -->
+			<div class="hero-video">
+				<video
+					src="https://pub-d5083bdd43ab42118d8b1076a558fa14.r2.dev/assets/framekit/Screen%20Recording%202026-11-02%20at%2011.36.25%20Edited.mp4"
+					poster="/videos/hero-poster.jpg"
+					width="1728"
+					height="1080"
+					autoplay
+					muted
+					loop
+					playsinline
+					preload="metadata"
+					aria-label="FrameKit Recorder Studio editing a screen recording"
+					data-hero-video
+				></video>
+			</div>
+			<script>
+				// With reduced motion the video waits on its poster, with controls to play it.
+				const video = document.querySelector<HTMLVideoElement>("[data-hero-video]");
+				if (video && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+					video.autoplay = false;
+					video.pause();
+					video.controls = true;
+				}
+			</script>
+		</div>
+	</section>
+
+	<div class="page">
+		<div class="page-inner">
+			<section id="features" class="features" aria-label="Features">
+				<FeatureGrid />
+				<div class="closing">
+					<div class="dl-row">
+						{frame.directDownload && <DownloadButton href="/download" />}
+						<DownloadButton href={frame.gumroad} label="Get it on Gumroad" tone="gumroad" icon="gumroad" />
+					</div>
+					<p class="req">
+						<svg  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75.97649 75.92767" aria-hidden="true"><path transform="matrix(1 0 0 -1 0 75.92767)" d="M40.07726339757795 14.789705069577671C39.3700564750186 14.720928992893272 38.67468240014762 14.69726 37.98824 14.69726C30.81052 14.69726 22.65623 17.28515 17.08983 22.21679C15.96678 23.24218 16.11327 24.75585 16.79686 25.63475C17.72459 26.70897 19.18943 26.66014 20.21482 25.83006C24.85349 21.92382 31.2988 19.38476 37.98824 19.38476C38.52193616605044 19.38476 39.053767539690256 19.400921449356932 39.578798948660406 19.45926318272096C39.31694875371333 22.19977712316224 39.09122725103838 25.185442331397514 38.91598 28.36912L38.28121 28.36912C32.5195 28.36912 29.00388 32.47068 29.7363 38.08591C33.10544 62.30464 36.13278 74.0722 39.20894999758026 75.92766999916212L22.2656 75.92767C15.1367 75.92767 9.521475 73.77924 5.810541 70.11713C2.001951 66.35737 0.0 60.79097 0.0 53.66207L0.0 22.26562C0.0 15.13672 2.001951 9.570315 5.810541 5.810553C9.521475 2.148448 15.1367 1.2308e-05 22.2656 1.2308e-05L43.359320958455406 1.2365788869317385e-05C42.39406703006811 0.9652904183023024 41.08847247505782 6.377650893297994 40.07726339757795 14.789705069577671ZM70.11712 5.810553C73.97454 9.570315 75.97649 15.13672 75.97649 22.26562L75.97649 53.66207C75.97649 60.79097 73.97454 66.35737 70.11712 70.11713C66.35736 73.82806 60.83978 75.92767 53.66206 75.92767L49.595361408632414 75.92766999916212C41.11273743312076 75.44634710721462 38.0957121808052 59.09212941583634 35.69332 38.67185C35.3027 35.4492 36.8652 34.03318 39.40426 34.03318L44.23824 34.03318C44.442905310347356 28.70213658161118 44.63589893800032 24.14336558398297 44.87247693891356 20.291741527278983C48.96672067454211 21.34043750997573 52.72321987681389 23.298027644348146 55.76166 25.83006C56.78705 26.66014 58.2519 26.70897 59.17963 25.63475C59.86322 24.75585 60.00971 23.24218 58.88666 22.21679C55.140032479772564 18.89740617133975 50.220998973260585 16.6398242470705 45.21474867976864 15.546342315523347C46.21505278187791 3.71511653043848 48.04776129381545 9.434622094131461e-05 53.12477398859208 1.2365788869317385e-05L53.66206 1.2308e-05C60.83978 1.2308e-05 66.40618 2.148448 70.11712 5.810553ZM19.28709 45.55661L19.28709 51.36715C19.28709 52.68551 20.31248 53.75973 21.67967 53.75973C22.99802 53.75973 24.02341 52.68551 24.02341 51.36715L24.02341 45.55661C24.02341 44.23825 22.99802 43.16403 21.67967 43.16403C20.31248 43.16403 19.28709 44.23825 19.28709 45.55661ZM51.70893 45.55661L51.70893 51.36715C51.70893 52.68551 52.73432 53.75973 54.05268 53.75973C55.37104 53.75973 56.44526 52.68551 56.44526 51.36715L56.44526 45.55661C56.44526 44.23825 55.37104 43.16403 54.05268 43.16403C52.73432 43.16403 51.70893 44.23825 51.70893 45.55661Z"></path></svg>
+						{frame.requirement}
+					</p>
+				</div>
+			</section>
+		</div>
+	</div>
+</MarketingLayout>

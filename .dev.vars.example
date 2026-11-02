@@ -1,0 +1,5 @@
+RESEND_API_KEY=re_your_key_here
+REPORT_TO=you@example.com
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_id/your_token
+GUMROAD_PING_TOKEN=a_long_random_string
+DISCORD_SALES_WEBHOOK_URL=https://discord.com/api/webhooks/your_id/your_token

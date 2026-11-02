@@ -1,0 +1,1208 @@
+@import "tailwindcss";
+
+@theme {
+	--font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--color-orange-25: #fffaf4;
+	/* The page background. Everything cut out of it (icon details, the scrolled header) uses
+	   this too, so changing it here recolors the whole site. */
+	--color-orange-75: #ffffff;
+	--radius-5xl: 2.5rem;
+}
+
+@layer base {
+	html {
+		color-scheme: light;
+		background: var(--color-orange-75);
+		scroll-behavior: smooth;
+	}
+
+	body {
+		margin: 0;
+		min-height: 100dvh;
+		background: var(--color-orange-75);
+		color: #292524;
+		font-family: var(--font-sans);
+		font-size: 16px;
+		-webkit-font-smoothing: antialiased;
+	}
+
+	a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	button,
+	input {
+		font: inherit;
+	}
+
+	::selection {
+		background: #c4b5fd;
+		color: #292524;
+	}
+}
+
+/* Sits over the top of the page and scrolls away with it. */
+.site-header {
+	position: absolute;
+	inset: 0 0 auto;
+	z-index: 40;
+}
+
+/* Over the hero scene the header is white. Its icon cut-outs read --color-orange-75, so here
+   that token takes the scene's violet. */
+.has-scene .site-header {
+	--color-orange-75: #392d69;
+	color: #fff;
+}
+
+.has-scene .site-header .version {
+	background: rgb(255 255 255 / 0.2);
+	color: #fff;
+	box-shadow: none;
+}
+
+.has-scene .site-header .nav-link:hover {
+	background: rgb(255 255 255 / 0.15);
+}
+
+.has-scene .site-header .dl.soft {
+	background: #fff;
+	color: #292524;
+}
+
+.header-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: min(100%, 108rem);
+	min-height: 3.5rem;
+	margin: 0 auto;
+	padding: 1.25rem 2rem;
+}
+
+@media (min-width: 640px) {
+	.header-bar {
+		padding-block: 1.75rem;
+	}
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+}
+
+.logo {
+	display: flex;
+	align-items: center;
+	border-radius: 1rem;
+	margin: -0.375rem;
+	padding: 0.375rem;
+}
+
+.logo:focus-visible,
+.nav-link:focus-visible,
+.dl:focus-visible,
+.icon-btn:focus-visible {
+	outline: 3px solid rgb(167 139 250 / 0.9);
+	outline-offset: 3px;
+}
+
+.logo-mark {
+	position: relative;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin-right: 0.75rem;
+	overflow: hidden;
+	border-radius: 0.75rem;
+	background: #292524;
+}
+
+.logo-glyph {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	color: #a78bfa;
+}
+
+.logo-corners {
+	transform-origin: center;
+	transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+.logo-lens {
+	fill: #8b5cf6;
+	transform-origin: center;
+	transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+/* A shutter press: the corners close in on the lens. */
+.logo:hover .logo-corners,
+.logo:focus-visible .logo-corners {
+	transform: scale(0.82);
+}
+
+.logo:hover .logo-lens,
+.logo:focus-visible .logo-lens {
+	transform: scale(1.2);
+}
+
+.logo-name {
+	font-size: 1.5rem;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.version {
+	position: relative;
+	margin-top: 0.625rem;
+	margin-left: 6.5px;
+	align-self: flex-start;
+	border-radius: 0.5rem;
+	padding: 2.5px 5.5px;
+	background: rgb(67 20 7 / 0.15);
+	color: rgb(67 20 7 / 0.6);
+	font-size: 0.75rem;
+	font-weight: 700;
+	box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--color-orange-75) 45%, transparent);
+}
+
+.header-nav {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
+
+.nav-link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 1rem;
+	padding: 1rem 1.25rem;
+	font-size: 1.125rem;
+	font-weight: 700;
+}
+
+.nav-link svg {
+	width: 1.5625rem;
+	height: 1.5625rem;
+	fill: currentColor;
+}
+
+.nav-link.changelog svg {
+	width: 1.375rem;
+	height: 1.375rem;
+	margin-right: 0.5rem;
+}
+
+.nav-link span {
+	display: none;
+}
+
+.nav-link:hover {
+	background: rgb(67 20 7 / 0.05);
+}
+
+@media (min-width: 640px) {
+	.nav-link.faqs span,
+	.nav-link.faqs svg {
+		margin-right: 0;
+	}
+
+	.nav-link.faqs span {
+		display: inline;
+	}
+
+	.nav-link.faqs svg {
+		margin-right: 0.5rem;
+	}
+}
+
+@media (max-width: 1023px) {
+	.nav-link.changelog {
+		display: none;
+	}
+}
+
+@media (min-width: 1024px) {
+	.nav-link.changelog span {
+		display: inline;
+	}
+}
+
+.dl {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-height: 3.75rem;
+	overflow: hidden;
+	border-radius: 1rem;
+	padding: 1rem 1.25rem 1rem 3.25rem;
+	font-size: 1.125rem;
+	font-weight: 700;
+	line-height: 1;
+	white-space: nowrap;
+	isolation: isolate;
+}
+
+.dl.solid {
+	color: #fff0df;
+	background: #292524;
+	box-shadow: 0 20px 25px -5px rgb(67 20 7 / 0.25);
+}
+
+.dl.soft {
+	color: #292524;
+	background: rgb(67 20 7 / 0.05);
+}
+
+/* Gumroad's pink, so the store button reads as Gumroad at a glance. */
+.dl.gumroad {
+	color: #000;
+	background: #ff90e8;
+	box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.25);
+}
+
+/* Download buttons side by side, wrapping on narrow screens. */
+.dl-row {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+}
+
+.dl-row.start {
+	justify-content: flex-start;
+}
+
+
+.header-nav .dl {
+	margin-left: 0.875rem;
+}
+
+@media (max-width: 639px) {
+	.header-nav .dl {
+		display: none;
+	}
+}
+
+.dl-icon,
+.dl-arrow {
+	position: absolute;
+	display: grid;
+	place-items: center;
+	width: 1.5625rem;
+	height: 1.5625rem;
+	transition: transform 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
+}
+
+.dl-icon {
+	left: 1.25rem;
+}
+
+.dl-arrow {
+	right: 1.25rem;
+	opacity: 0;
+	transform: translateX(100%) scaleX(0.5);
+	filter: blur(4px);
+}
+
+.dl-label {
+	transition: transform 0.3s ease;
+}
+
+.dl:hover .dl-icon {
+	opacity: 0;
+	transform: translateX(-100%) scaleX(0.5);
+	filter: blur(4px);
+}
+
+.dl:hover .dl-label {
+	transform: translateX(-2rem);
+}
+
+.dl:hover .dl-arrow {
+	opacity: 1;
+	transform: none;
+	filter: none;
+}
+
+/* On a phone the header and the download buttons step down a size, so the hero copy leads. */
+@media (max-width: 639px) {
+	.logo-mark {
+		width: 2rem;
+		height: 2rem;
+		margin-right: 0.5rem;
+		border-radius: 0.625rem;
+	}
+
+	.logo-name {
+		font-size: 1.25rem;
+	}
+
+	.version {
+		margin-top: 0.375rem;
+		margin-left: 5px;
+		border-radius: 0.4rem;
+		padding: 2px 4.5px;
+		font-size: 0.6875rem;
+	}
+
+	/* 22px icon + padding keeps a 44px tap target. */
+	.nav-link {
+		padding: 0.6875rem;
+		border-radius: 0.875rem;
+	}
+
+	.nav-link svg {
+		width: 1.375rem;
+		height: 1.375rem;
+	}
+
+	.dl {
+		max-height: 3.25rem;
+		border-radius: 0.875rem;
+		padding: 0.875rem 1.125rem 0.875rem 2.875rem;
+		font-size: 1rem;
+	}
+
+	.dl-icon,
+	.dl-arrow {
+		width: 1.25rem;
+		height: 1.25rem;
+	}
+
+	.dl-icon {
+		left: 1.125rem;
+	}
+
+	.dl-arrow {
+		right: 1.125rem;
+	}
+
+	.dl-icon svg,
+	.dl-arrow svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	.dl:hover .dl-label {
+		transform: translateX(-1.75rem);
+	}
+}
+
+.page {
+	display: flex;
+	flex: 1;
+	justify-content: center;
+	padding: 8rem 2rem 4rem;
+}
+
+@media (min-width: 640px) {
+	.page {
+		padding-top: 12rem;
+		padding-bottom: 7rem;
+	}
+}
+
+@media (min-width: 1280px) {
+	.page {
+		padding-inline: 9rem;
+	}
+}
+
+.page-inner {
+	display: flex;
+	width: 100%;
+	max-width: 80rem;
+	flex-direction: column;
+	align-items: center;
+}
+
+/* The full-bleed hero: live water (HeroShader) behind the copy and the capture stage. Its side
+   padding matches .page, so the stage lines up with the feature grid below. The gradient is
+   what shows without WebGL. */
+.scene {
+	position: relative;
+	overflow: hidden;
+	padding: 8rem 2rem 5rem;
+	background:
+		linear-gradient(90deg, hsl(252 40% 29%) 0%, hsl(270 77% 71%) 100%),
+		#392d69;
+	color: #fff;
+}
+
+.scene-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	transition: opacity 0.8s ease;
+}
+
+.scene-canvas.is-live {
+	opacity: 1;
+}
+
+.scene .dl.solid {
+	background: #fff;
+	color: #0f0b1a;
+	box-shadow: 0 20px 40px -10px rgb(0 0 0 / 0.5);
+}
+
+/* The water fades into the page below. */
+.scene::after {
+	content: "";
+	position: absolute;
+	inset: auto 0 0;
+	height: 14rem;
+	background: linear-gradient(to bottom, transparent, var(--color-orange-75) 90%);
+	pointer-events: none;
+}
+
+@media (min-width: 640px) {
+	.scene {
+		padding-top: 11rem;
+		padding-bottom: 15rem;
+	}
+
+	.scene::after {
+		height: 18rem;
+	}
+}
+
+@media (min-width: 1280px) {
+	.scene {
+		padding-inline: 9rem;
+	}
+}
+
+.scene-inner {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	max-width: 80rem;
+	margin: 0 auto;
+	flex-direction: column;
+	align-items: center;
+}
+
+.scene + .page {
+	padding-top: 2rem;
+}
+
+/* The demo recording, framed like a window. The side padding matches the feature grid. */
+.hero-video {
+	width: 100%;
+}
+
+@media (min-width: 1024px) {
+	.hero-video {
+		padding-inline: 2rem;
+	}
+}
+
+.hero-video video {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 1728 / 1080;
+	object-fit: cover;
+	border-radius: 0.75rem;
+	background: #0f0b1a;
+	box-shadow:
+		0 0 0 1px rgb(255 255 255 / 0.12),
+		0 40px 80px -20px rgb(0 0 0 / 0.6);
+}
+
+.hero {
+	width: 100%;
+	margin-bottom: 3.5rem;
+	text-align: center;
+}
+
+@media (min-width: 640px) {
+	.hero {
+		margin-bottom: 5rem;
+	}
+}
+
+@media (min-width: 1280px) {
+	.hero {
+		width: 80%;
+		max-width: 64rem;
+	}
+}
+
+/* The hero's type is set for a phone first (a 311px column at 375px wide) and grows at 640px:
+   smaller sizes, a little more leading, and balanced lines so no word is left alone. */
+.hero-eyebrow {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0 0 1rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+}
+
+@media (min-width: 640px) {
+	.hero-eyebrow {
+		gap: 0.5rem;
+		margin-bottom: 1.25rem;
+		font-size: 1rem;
+	}
+}
+
+.hero-eyebrow svg {
+	width: 1.15em;
+	height: 1.15em;
+	fill: currentColor;
+}
+
+.hero-title {
+	margin: 0;
+	font-size: clamp(2rem, 8.5vw, 3.75rem);
+	line-height: 1.05;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	text-wrap: balance;
+	text-shadow: 0 2px 24px rgb(0 0 0 / 0.25);
+}
+
+@media (min-width: 640px) {
+	.hero-title {
+		font-size: clamp(2.75rem, 8vw, 3.75rem);
+		line-height: 1;
+		letter-spacing: -0.035em;
+	}
+}
+
+@media (min-width: 1100px) {
+	.hero-title {
+		font-size: 5.5rem;
+	}
+}
+
+.hero-script {
+	display: block;
+	margin-top: 0.12em;
+	line-height: 1;
+	font-family: "Instrument Serif", ui-serif, Georgia, serif;
+	font-size: 1.12em;
+	font-style: italic;
+	font-weight: 400;
+	letter-spacing: -0.02em;
+}
+
+.hero-lede {
+	max-width: 36rem;
+	margin: 1.25rem auto 0;
+	color: rgb(255 255 255 / 0.9);
+	font-size: 1rem;
+	line-height: 1.5;
+	text-wrap: pretty;
+	text-shadow: 0 1px 14px rgb(0 0 0 / 0.5);
+}
+
+@media (min-width: 640px) {
+	.hero-lede {
+		margin-top: 1.75rem;
+		font-size: 1.125rem;
+		line-height: 1.55;
+	}
+}
+
+.hero-meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.25rem 1rem;
+	margin: 1rem 0 0;
+	padding: 0;
+	list-style: none;
+	color: rgb(255 255 255 / 0.85);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	text-shadow: 0 1px 10px rgb(0 0 0 / 0.5);
+}
+
+@media (min-width: 640px) {
+	.hero-meta {
+		gap: 0.375rem 1.5rem;
+		margin-top: 1.25rem;
+		font-size: 0.875rem;
+	}
+}
+
+.hero-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.75rem;
+	margin-top: 2rem;
+}
+
+.features {
+	width: 100%;
+	margin-top: 4rem;
+}
+
+@media (min-width: 640px) {
+	.features {
+		margin-top: 3rem;
+	}
+}
+
+.closing {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-top: 6rem;
+}
+
+.req {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 2.25rem;
+	color: rgb(67 20 7 / 0.36);
+	font-size: 0.875rem;
+	font-weight: 700;
+}
+
+.req svg {
+	width: 1rem;
+	height: 1rem;
+	fill: currentColor;
+}
+
+.site-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 0 2rem 5rem;
+}
+
+.socials {
+	display: flex;
+	gap: 0.75rem;
+}
+
+.icon-btn {
+	display: grid;
+	width: 2.5rem;
+	height: 2.5rem;
+	place-items: center;
+	border-radius: 0.75rem;
+	background: rgb(67 20 7 / 0.05);
+	color: rgb(67 20 7 / 0.5);
+}
+
+.icon-btn:hover {
+	color: rgb(67 20 7 / 0.75);
+}
+
+.icon-btn svg {
+	fill: currentColor;
+	transition: transform 0.3s ease;
+}
+
+.icon-btn:hover svg {
+	transform: scale(1.05);
+}
+
+.wordmark {
+	display: none;
+	height: 14rem;
+	margin-top: -1.5rem;
+	overflow: hidden;
+	background: linear-gradient(to bottom, rgb(67 20 7 / 0.1) 25%, transparent);
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	font-size: 20rem;
+	font-weight: 900;
+	line-height: 0.8;
+	user-select: none;
+	pointer-events: none;
+}
+
+@media (min-width: 640px) {
+	.wordmark {
+		display: block;
+	}
+
+	.site-footer {
+		padding-bottom: 0;
+	}
+}
+
+@media (min-width: 768px) {
+	.wordmark {
+		height: 12rem;
+		font-size: 18rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	.wordmark {
+		height: 14rem;
+		font-size: 20rem;
+	}
+}
+
+.prose-page {
+	width: min(100% - 4rem, 46rem);
+	margin: 0 auto;
+	padding: 12rem 0 6rem;
+}
+
+.prose-page h1 {
+	margin: 0 0 1.5rem;
+	font-size: clamp(2.5rem, 5vw, 4rem);
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: -0.03em;
+}
+
+.prose-page h2 {
+	margin: 2.5rem 0 0.5rem;
+	font-size: 1.5rem;
+}
+
+.prose-page p,
+.prose-page li {
+	font-size: 1.125rem;
+	line-height: 1.55;
+}
+
+.prose-page .muted {
+	color: #78716c;
+}
+
+.prose-page a {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+/* Accordion rows (AccordionItem). Rows open and close by animating their height where the
+   browser can (::details-content with interpolate-size), and snap open elsewhere. */
+.accordion {
+	interpolate-size: allow-keywords;
+	margin-top: 2.5rem;
+}
+
+.accordion-item + .accordion-item {
+	border-top: 1px solid rgb(41 37 36 / 0.12);
+}
+
+.accordion-item::details-content {
+	block-size: 0;
+	overflow: clip;
+	transition:
+		block-size 0.2s ease-out,
+		content-visibility 0.2s allow-discrete;
+}
+
+.accordion-item[open]::details-content {
+	block-size: auto;
+}
+
+.accordion-trigger {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.25rem 0;
+	border-radius: 0.5rem;
+	cursor: pointer;
+	list-style: none;
+	font-size: 1.25rem;
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	user-select: none;
+}
+
+.accordion-trigger::-webkit-details-marker {
+	display: none;
+}
+
+.accordion-trigger:focus-visible {
+	outline: 3px solid rgb(167 139 250 / 0.9);
+	outline-offset: 3px;
+}
+
+/* A plus that loses its upright stroke and becomes a minus when the row is open. */
+.accordion-icon {
+	flex: none;
+	width: 1rem;
+	height: 1rem;
+	fill: none;
+	stroke: #a8a29e;
+	stroke-width: 1.5;
+	stroke-linecap: round;
+	transition: stroke 0.15s ease;
+}
+
+.accordion-icon-v {
+	transform-box: fill-box;
+	transform-origin: center;
+	transition: transform 0.2s ease-out;
+}
+
+.accordion-item[open] .accordion-icon-v {
+	transform: scaleY(0);
+}
+
+@media (hover: hover) {
+	.accordion-trigger:hover .accordion-icon {
+		stroke: #292524;
+	}
+}
+
+.accordion-meta {
+	margin-left: auto;
+	color: #78716c;
+	font-size: 0.9375rem;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+/* The answer lines up with the title, past the icon. */
+.accordion-content {
+	padding: 0 0 1.5rem 2rem;
+}
+
+.prose-page .accordion-content p {
+	margin: 0;
+}
+
+.prose-page .accordion-content p + p {
+	margin-top: 0.75rem;
+}
+
+/* A release's features on the changelog, one group per area of the app. */
+.changelog-group {
+	margin-top: 1.5rem;
+}
+
+.prose-page .changelog-group h3 {
+	margin: 0 0 0.5rem;
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.prose-page .changelog-group ul {
+	margin: 0;
+	padding-left: 1.25rem;
+}
+
+.prose-page .changelog-group li {
+	font-size: 1rem;
+}
+
+.prose-page .changelog-group li + li {
+	margin-top: 0.375rem;
+}
+
+/* The bug report form (BugReportForm). */
+.report-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.75rem;
+	margin-top: 2.5rem;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.field label,
+.field-label {
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.optional {
+	margin-left: 0.375rem;
+	color: #a8a29e;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.field input[type="text"],
+.field input[type="email"],
+.field textarea {
+	width: 100%;
+	border: 1px solid #e7e5e4;
+	border-radius: 0.875rem;
+	background: #fff;
+	padding: 0.875rem 1rem;
+	color: #292524;
+	font: inherit;
+	font-size: 1rem;
+	line-height: 1.5;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field textarea {
+	min-height: 9rem;
+	resize: vertical;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+	color: #a8a29e;
+}
+
+.field input:focus-visible,
+.field textarea:focus-visible {
+	outline: none;
+	border-color: #8b5cf6;
+	box-shadow: 0 0 0 4px rgb(139 92 246 / 0.15);
+}
+
+.field [aria-invalid="true"],
+.field [aria-invalid="true"]:focus-visible {
+	border-color: #e11d48;
+}
+
+.field [aria-invalid="true"]:focus-visible {
+	box-shadow: 0 0 0 4px rgb(225 29 72 / 0.12);
+}
+
+.prose-page .field-hint,
+.prose-page .field-error {
+	margin: 0;
+	font-size: 0.875rem;
+	line-height: 1.45;
+}
+
+.prose-page .field-hint {
+	color: #78716c;
+}
+
+.prose-page .field-error {
+	color: #be123c;
+	font-weight: 500;
+}
+
+.dropzone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.375rem;
+	border: 1.5px dashed #d6d3d1;
+	border-radius: 1rem;
+	background: #fafaf9;
+	padding: 2rem 1.25rem;
+	text-align: center;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.dropzone svg {
+	width: 1.75rem;
+	height: 1.75rem;
+	margin-bottom: 0.25rem;
+	fill: none;
+	stroke: #78716c;
+	stroke-width: 1.75;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.dropzone-title {
+	font-weight: 600;
+}
+
+.dropzone-link {
+	color: #7c3aed;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.dropzone-hint {
+	color: #78716c;
+	font-size: 0.875rem;
+}
+
+.dropzone:hover,
+.dropzone.is-dragging {
+	border-color: #8b5cf6;
+	background: #f5f3ff;
+}
+
+.dropzone:focus-within {
+	border-color: #8b5cf6;
+	box-shadow: 0 0 0 4px rgb(139 92 246 / 0.15);
+}
+
+.file-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.file-list:empty {
+	display: none;
+}
+
+.file-item {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	border: 1px solid #e7e5e4;
+	border-radius: 0.875rem;
+	background: #fff;
+	padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.file-thumb {
+	flex: none;
+	width: 3.5rem;
+	height: 3.5rem;
+	border-radius: 0.5rem;
+	background: #f5f5f4;
+	object-fit: cover;
+}
+
+.file-meta {
+	display: flex;
+	min-width: 0;
+	flex: 1;
+	flex-direction: column;
+}
+
+.file-name {
+	overflow: hidden;
+	font-size: 0.9375rem;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.file-size {
+	color: #78716c;
+	font-size: 0.8125rem;
+}
+
+.file-remove {
+	display: grid;
+	flex: none;
+	width: 2.25rem;
+	height: 2.25rem;
+	place-items: center;
+	border: 0;
+	border-radius: 0.625rem;
+	background: transparent;
+	color: #78716c;
+	cursor: pointer;
+}
+
+.file-remove svg {
+	width: 1rem;
+	height: 1rem;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.75;
+	stroke-linecap: round;
+}
+
+.file-remove:hover {
+	background: #f5f5f4;
+	color: #292524;
+}
+
+.file-remove:focus-visible,
+.submit-btn:focus-visible {
+	outline: 3px solid rgb(167 139 250 / 0.9);
+	outline-offset: 2px;
+}
+
+/* Off screen rather than display: none, so bots still find and fill it. */
+.honeypot {
+	position: absolute;
+	left: -10000px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.form-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 1rem 1.25rem;
+}
+
+.submit-btn {
+	border: 0;
+	border-radius: 1rem;
+	background: #292524;
+	padding: 1rem 1.5rem;
+	color: #fff;
+	font-size: 1.0625rem;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+	box-shadow: 0 20px 25px -5px rgb(67 20 7 / 0.2);
+	transition: background-color 0.15s ease;
+}
+
+.submit-btn:hover {
+	background: #44403c;
+}
+
+.submit-btn:disabled {
+	opacity: 0.6;
+	cursor: progress;
+}
+
+.prose-page .form-status {
+	margin: 0;
+	color: #78716c;
+	font-size: 0.9375rem;
+}
+
+.prose-page .form-status.is-error {
+	color: #be123c;
+}
+
+.report-sent {
+	margin-top: 2.5rem;
+	border-radius: 1.25rem;
+	background: #f5f3ff;
+	padding: 1.75rem;
+}
+
+.report-sent:focus {
+	outline: none;
+}
+
+.prose-page .report-sent h2 {
+	margin: 0 0 0.5rem;
+	font-size: 1.375rem;
+}
+
+.prose-page .report-sent p {
+	margin: 0.5rem 0 0;
+	font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html { scroll-behavior: auto; }
+	*,
+	*::before,
+	*::after {
+		animation: none !important;
+		transition: none !important;
+	}
+}

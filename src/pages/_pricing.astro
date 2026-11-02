@@ -1,0 +1,36 @@
+---
+import BaseLayout from "../layouts/base-layout.astro";
+import { site } from "../config/site";
+import Container from "../components/container.astro";
+import PageHeader from "../components/page-header.astro";
+import PricingGrid from "../components/pricing-grid.astro";
+---
+
+<BaseLayout title="Pricing" description={site.pricingIntro.lede}>
+	<PageHeader title={site.pricingIntro.title} lede={site.pricingIntro.lede} />
+	<Container class="mt-loose pb-section">
+		<PricingGrid />
+
+		<h2 id="faq" class="mt-section text-center text-heading text-charcoal-body">
+			Questions about seats
+		</h2>
+		<div class="mt-loose overflow-hidden rounded-cards border border-hairline bg-frosted-white">
+			{
+				site.faq.map((item) => (
+					<details class="group border-b border-hairline last:border-b-0">
+						<summary class="flex cursor-pointer items-center justify-between gap-card p-card text-body-sm text-charcoal-body focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-graphite-ink">
+							{item.question}
+							<span class="text-slate-caption group-open:hidden" aria-hidden="true">
+								+
+							</span>
+							<span class="hidden text-slate-caption group-open:inline" aria-hidden="true">
+								–
+							</span>
+						</summary>
+						<p class="px-card pb-card text-body-sm text-slate-caption">{item.answer}</p>
+					</details>
+				))
+			}
+		</div>
+	</Container>
+</BaseLayout>

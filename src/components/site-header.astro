@@ -1,0 +1,89 @@
+---
+import { site } from "../config/site";
+import Button from "./button.astro";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+function isCurrent(href: string) {
+	if (href.startsWith("/#") || href.startsWith("mailto:")) return false;
+	return pathname === href;
+}
+---
+
+<header class="sticky top-0 z-40 border-b border-hairline bg-linen-canvas/90 backdrop-blur-md">
+	<div class="flex h-16 items-center gap-3 px-6 md:px-12">
+		<a href="/" class="inline-flex shrink-0 items-center gap-2 text-charcoal-body">
+			<span
+				class="flex size-8 items-center justify-center rounded-[9px] bg-lime-pulse font-serif text-[18px] leading-none text-on-action italic"
+				aria-hidden="true"
+			>
+				H
+			</span>
+			<span class="font-serif text-[22px] leading-none italic">{site.name}</span>
+		</a>
+
+		<nav class="hidden min-w-0 flex-1 items-center justify-center gap-6 lg:flex" aria-label="Primary">
+			{
+				site.nav.map((item) => (
+					<a
+						href={item.href}
+						aria-current={isCurrent(item.href) ? "page" : undefined}
+						class:list={[
+							"text-caption text-iron-nav hover:text-charcoal-body",
+							isCurrent(item.href) && "text-charcoal-body",
+						]}
+					>
+						{item.label}
+					</a>
+				))
+			}
+		</nav>
+
+		<div class="ml-auto flex items-center gap-2">
+			<span class="hidden lg:inline-flex">
+				<Button href={site.login.href} variant="secondary">{site.login.label}</Button>
+			</span>
+			<Button href={site.cta.href}>{site.cta.label}</Button>
+
+			<details data-menu class="relative lg:hidden">
+				<summary
+					class="flex h-10 cursor-pointer list-none items-center rounded-full border border-hairline bg-pebble px-3 text-caption font-medium text-charcoal-body focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-pulse"
+				>
+					Menu
+				</summary>
+				<div
+					class="absolute right-0 z-30 mt-3 w-56 rounded-[20px] border border-hairline bg-frosted-white p-card shadow-float"
+				>
+					<nav class="flex flex-col gap-tight" aria-label="Mobile">
+						{
+							site.nav.map((item) => (
+								<a
+									href={item.href}
+									aria-current={isCurrent(item.href) ? "page" : undefined}
+									class="py-1 text-caption text-iron-nav hover:text-charcoal-body"
+								>
+									{item.label}
+								</a>
+							))
+						}
+					</nav>
+					<div class="mt-card flex flex-col gap-tight border-t border-hairline pt-card">
+						<Button href={site.login.href} variant="secondary" class="w-full">
+							{site.login.label}
+						</Button>
+						<Button href={site.cta.href} class="w-full">{site.cta.label}</Button>
+					</div>
+				</div>
+			</details>
+		</div>
+	</div>
+</header>
+
+<script>
+	const links = document.querySelector("[data-menu]")?.querySelectorAll("a");
+	links?.forEach((link) => {
+		link.addEventListener("click", () => {
+			link.closest("details")?.removeAttribute("open");
+		});
+	});
+</script>

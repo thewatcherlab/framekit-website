@@ -1,0 +1,28 @@
+---
+import MarketingLayout from "../layouts/marketing-layout.astro";
+import AccordionItem from "../components/marketing/accordion-item.astro";
+import { faqs, frame } from "../config/frame";
+---
+
+<MarketingLayout title="FAQs — FrameKit" description="Frequently asked questions about FrameKit.">
+	<article class="prose-page">
+		<h1>FAQs</h1>
+		<div class="accordion">
+			{
+				faqs.map((item, index) => (
+					<AccordionItem title={item.q} open={index === 0}>
+						<p>
+							{item.a}{" "}
+							{item.href && item.link && <a href={item.href}>{item.link}</a>}
+						</p>
+					</AccordionItem>
+				))
+			}
+		</div>
+		<h2>Have more questions?</h2>
+		<p>
+			If you have any other questions, do not hesitate to
+			<a href={`mailto:${frame.email}`}>get in touch</a>.
+		</p>
+	</article>
+</MarketingLayout>

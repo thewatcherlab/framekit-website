@@ -1,0 +1,25 @@
+---
+interface Props {
+	tone?: "white" | "stone" | "glass";
+	pad?: "card" | "stack" | "none";
+	class?: string;
+}
+
+const { tone = "white", pad = "card", class: className } = Astro.props;
+
+const tones = {
+	white: "rounded-cards border border-hairline bg-frosted-white",
+	stone: "rounded-cards bg-warm-stone",
+	glass: "rounded-overlay border border-hairline bg-glass shadow-glass backdrop-blur-[12px]",
+};
+
+const pads = {
+	card: "p-card",
+	stack: "p-stack",
+	none: "",
+};
+---
+
+<div class:list={[tones[tone], pads[pad], className]}>
+	<slot />
+</div>

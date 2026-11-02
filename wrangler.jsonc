@@ -1,0 +1,43 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "framekit-site",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"directory": "./dist/client",
+		"binding": "ASSETS"
+	},
+	// Served at this address. thewatcherlab.com has to be a zone in the same Cloudflare account;
+	// the first deploy creates the DNS record and certificate.
+	"routes": [
+		{
+			"pattern": "framekit.thewatcherlab.com",
+			"custom_domain": true
+		}
+	],
+	"observability": {
+		"enabled": true
+	},
+	// The bug report email's sender. Everything private is a secret, set with
+	// `pnpm wrangler secret put <NAME>`: RESEND_API_KEY, REPORT_TO (the inbox),
+	// DISCORD_WEBHOOK_URL, DISCORD_SALES_WEBHOOK_URL and GUMROAD_PING_TOKEN.
+	"vars": {
+		"REPORT_FROM": "FrameKit Bug Reports <bugs@framekit.thewatcherlab.com>"
+	},
+	// Videos attached to bug reports. Private: the report email links to them through
+	// /api/report/file/..., under a random key nobody else gets.
+	"r2_buckets": [
+		{
+			"binding": "REPORT_FILES",
+			"bucket_name": "framekit-bug-reports"
+		}
+	],
+	// At most 5 reports (and 5 video uploads) a minute from one IP address, so the form can't be used to flood the inbox.
+	"ratelimits": [
+		{
+			"name": "REPORT_LIMITER",
+			"namespace_id": "1001",
+			"simple": { "limit": 5, "period": 60 }
+		}
+	]
+}

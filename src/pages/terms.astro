@@ -1,0 +1,19 @@
+---
+import MarketingLayout from "../layouts/marketing-layout.astro";
+import { frame } from "../config/frame";
+---
+
+<MarketingLayout title="Terms — FrameKit" description="Terms for using FrameKit.">
+	<article class="prose-page">
+		<h1>Terms</h1>
+		<p>FrameKit is free to download and use.</p>
+		<p>
+			It’s provided as is, without warranty of any kind. FrameKit is a beta, so keep copies of anything important
+			you capture or record.
+		</p>
+		<p>You’re responsible for what you capture and record, and for having the right to record it.</p>
+		<p class="muted">
+			Questions go to <a href={`mailto:${frame.email}`}>{frame.email}</a>.
+		</p>
+	</article>
+</MarketingLayout>

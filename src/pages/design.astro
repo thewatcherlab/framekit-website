@@ -1,0 +1,132 @@
+---
+import BaseLayout from "../layouts/base-layout.astro";
+import Button from "../components/button.astro";
+import Card from "../components/card.astro";
+import Container from "../components/container.astro";
+import PageHeader from "../components/page-header.astro";
+
+const colors = [
+	{ name: "Stage", token: "--color-stage", value: "#0a0a0a", swatch: "bg-stage" },
+	{ name: "Canvas", token: "--color-linen-canvas", value: "#141414", swatch: "bg-linen-canvas" },
+	{ name: "Card", token: "--color-frosted-white", value: "#1c1c1c", swatch: "bg-frosted-white" },
+	{ name: "Warm stone", token: "--color-warm-stone", value: "#191919", swatch: "bg-warm-stone" },
+	{ name: "Pebble", token: "--color-pebble", value: "#2a2a2a", swatch: "bg-pebble" },
+	{ name: "Cream action", token: "--color-graphite-ink", value: "#f3efe6", swatch: "bg-graphite-ink" },
+	{ name: "Body", token: "--color-charcoal-body", value: "#f4f1ea", swatch: "bg-charcoal-body" },
+	{ name: "Caption", token: "--color-slate-caption", value: "#a3a3a3", swatch: "bg-slate-caption" },
+	{ name: "Ash", token: "--color-ash-subheading", value: "#737373", swatch: "bg-ash-subheading" },
+	{ name: "Nav", token: "--color-iron-nav", value: "#d0d0d0", swatch: "bg-iron-nav" },
+	{ name: "Teal", token: "--color-lime-pulse", value: "#3dccc7", swatch: "bg-lime-pulse" },
+];
+
+const type = [
+	{ label: "Display · 80", class: "text-display" },
+	{ label: "Heading large · 64", class: "text-heading-lg" },
+	{ label: "Heading · 45", class: "text-heading" },
+	{ label: "Heading small · 32", class: "text-heading-sm" },
+	{ label: "Subheading · 27", class: "text-subheading" },
+	{ label: "Body · 19", class: "text-body" },
+	{ label: "Body small · 16", class: "text-body-sm" },
+	{ label: "Caption · 14", class: "text-caption" },
+	{ label: "Small · 12", class: "text-small" },
+];
+---
+
+<BaseLayout
+	title="Design system"
+	description="Tokens, type, and surfaces for products built from this template."
+	noindex={true}
+>
+	<PageHeader
+		title="Design system"
+		lede="The visual rules for every product spun out of this template. Change tokens in src/styles/global.css, and copy in src/config/site.ts."
+	/>
+
+	<Container class="mt-loose flex flex-col gap-section pb-section">
+		<section aria-labelledby="colors-title">
+			<h2 id="colors-title" class="text-heading-sm text-charcoal-body">Color</h2>
+			<p class="mt-tight max-w-2xl text-body-sm text-slate-caption">
+				Cream is the only action color. Teal is reserved for the mark and a live status dot.
+				Pages stay charcoal, with a lighter card when a section needs to step forward.
+			</p>
+			<ul class="mt-nav grid gap-card sm:grid-cols-2 lg:grid-cols-3">
+				{
+					colors.map((color) => (
+						<li class="flex items-center gap-card rounded-cards border border-hairline bg-frosted-white p-card">
+							<span class:list={["size-12 shrink-0 rounded-full border border-hairline", color.swatch]} />
+							<span>
+								<span class="block text-caption text-charcoal-body">{color.name}</span>
+								<span class="block text-small text-slate-caption">{color.token}</span>
+								<span class="block text-small text-slate-caption">{color.value}</span>
+							</span>
+						</li>
+					))
+				}
+			</ul>
+		</section>
+
+		<section aria-labelledby="type-title">
+			<h2 id="type-title" class="text-heading-sm text-charcoal-body">Type</h2>
+			<p class="mt-tight max-w-2xl text-body-sm text-slate-caption">
+				Instrument Serif for headlines, Inter for interface text. Both load from the base layout.
+			</p>
+			<div class="mt-nav rounded-cards border border-hairline bg-frosted-white p-card">
+				<ul class="flex flex-col gap-nav">
+					{
+						type.map((step) => (
+							<li>
+								<p class="text-small text-slate-caption">{step.label}</p>
+								<p class:list={["text-charcoal-body", step.class]}>The record stays quiet.</p>
+							</li>
+						))
+					}
+				</ul>
+			</div>
+		</section>
+
+		<section aria-labelledby="controls-title">
+			<h2 id="controls-title" class="text-heading-sm text-charcoal-body">Controls</h2>
+			<p class="mt-tight max-w-2xl text-body-sm text-slate-caption">
+				Capsules use a 200px radius. The sharp square is only for a consent dialog.
+			</p>
+			<div class="mt-nav flex flex-wrap items-center gap-tight">
+				<Button href="/login">Start free</Button>
+				<Button variant="secondary">Book a demo</Button>
+				<Button variant="ghost">Learn more</Button>
+				<Button variant="square">OK</Button>
+			</div>
+			<form class="mt-nav max-w-md">
+				<label for="sample-email" class="text-caption text-charcoal-body">Work email</label>
+				<input id="sample-email" class="field mt-inline" type="email" placeholder="you@company.com" />
+			</form>
+		</section>
+
+		<section aria-labelledby="surfaces-title">
+			<h2 id="surfaces-title" class="text-heading-sm text-charcoal-body">Surfaces</h2>
+			<p class="mt-tight max-w-2xl text-body-sm text-slate-caption">
+				Shadows are for a panel floating over imagery. Everywhere else, shift the surface tone.
+			</p>
+			<div class="mt-nav grid gap-nav lg:grid-cols-3">
+				<Card>
+					<p class="text-caption text-slate-caption">Card</p>
+					<p class="mt-tight text-body-sm text-charcoal-body">Primary content. 12px radius, 18px padding, hairline border.</p>
+				</Card>
+				<Card tone="stone">
+					<p class="text-caption text-iron-nav">Warm stone</p>
+					<p class="mt-tight text-body-sm text-charcoal-body">Pricing, secondary panels, and the footer.</p>
+				</Card>
+				<div class="shot-backdrop flex items-center rounded-cards p-card">
+					<Card tone="glass" class="w-full">
+						<p class="flex items-center gap-inline text-body-sm text-charcoal-body">
+							<span class="status-dot size-2 rounded-full bg-lime-pulse" aria-hidden="true"></span>
+							Glass overlay
+						</p>
+						<p class="mt-tight text-caption text-slate-caption">
+							Translucent charcoal, 6px radius, 12px blur. Used by the help widget.
+						</p>
+					</Card>
+				</div>
+			</div>
+		</section>
+	</Container>
+</BaseLayout>

@@ -1,0 +1,25 @@
+---
+import MarketingLayout from "../layouts/marketing-layout.astro";
+import DownloadButton from "../components/marketing/download-button.astro";
+import { frame } from "../config/frame";
+---
+
+<MarketingLayout title="Download for Mac — FrameKit" description={`Download FrameKit for ${frame.requirement}.`}>
+	<article class="prose-page">
+		<h1>Download for Mac</h1>
+		<p>Open the download, move FrameKit to your Applications folder, then launch it. FrameKit lives in the menu bar.</p>
+		<p class="muted">{frame.requirement} · Version {frame.version} beta · {frame.price}</p>
+		<p class="dl-row start">
+			{frame.directDownload && <DownloadButton href={frame.download} />}
+			<DownloadButton href={frame.gumroad} label="Get it on Gumroad" tone="gumroad" icon="gumroad" />
+		</p>
+		<p>
+			FrameKit asks for Screen Recording the first time you capture, and for Accessibility, Camera, Microphone or
+			Speech Recognition only when a feature needs one.
+		</p>
+		<p class="muted">
+			If you have any trouble downloading or installing, please
+			<a href={`mailto:${frame.email}?subject=FrameKit%20download`}>get in touch</a>.
+		</p>
+	</article>
+</MarketingLayout>

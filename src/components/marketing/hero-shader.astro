@@ -1,0 +1,433 @@
+---
+/*
+ * The hero's background: a water surface over a deep-indigo-to-lavender gradient in the brand colors, with film
+ * grain. The pointer drags through the water and leaves a rippling wake (a height field stepped
+ * with the wave equation); the ripples refract the glow and its caustics and catch a specular
+ * highlight. A tap or click drops a bigger ring.
+ *
+ * Needs WebGL2 with float render targets; without them the scene's CSS gradient shows
+ * instead. With reduced motion it draws one still frame and ignores the pointer.
+ */
+---
+
+<canvas class="scene-canvas" data-hero-shader aria-hidden="true"></canvas>
+
+<script>
+	/* Tuning. A bigger DROP_RADIUS means a wider wake; lower DAMPING fades the ripples sooner. */
+	const SIM_RESOLUTION = 256;
+	const DISPLAY_SCALE = 0.6;
+	const STEPS_PER_SECOND = 120;
+	const DAMPING = 0.994;
+	const DROP_RADIUS = 0.022;
+	const TRAIL_STRENGTH = -0.006;
+	const TAP_STRENGTH = 0.05;
+	const MAX_TRAIL_DROPS = 16;
+	const NORMAL_STRENGTH = 24;
+	const REFRACTION = 0.05;
+
+	const vertexSource = `#version 300 es
+		in vec2 aPos;
+		uniform vec2 texelSize;
+		out vec2 vUv, vL, vR, vT, vB;
+		void main() {
+			vUv = aPos * 0.5 + 0.5;
+			vL = vUv - vec2(texelSize.x, 0.0);
+			vR = vUv + vec2(texelSize.x, 0.0);
+			vT = vUv + vec2(0.0, texelSize.y);
+			vB = vUv - vec2(0.0, texelSize.y);
+			gl_Position = vec4(aPos, 0.0, 1.0);
+		}
+	`;
+
+	const frag = (body: string) => `#version 300 es
+		precision highp float;
+		precision highp sampler2D;
+		in vec2 vUv, vL, vR, vT, vB;
+		out vec4 outColor;
+		${body}
+	`;
+
+	// The water texture holds height in R and vertical velocity in G.
+	const sources = {
+		drop: frag(`
+			uniform sampler2D uWater;
+			uniform float aspectRatio, radius, strength;
+			uniform vec2 point;
+			void main() {
+				vec4 info = texture(uWater, vUv);
+				vec2 p = vUv - point;
+				p.x *= aspectRatio;
+				float d = max(0.0, 1.0 - length(p) / radius);
+				info.r += (0.5 - cos(d * 3.14159265) * 0.5) * strength;
+				outColor = info;
+			}
+		`),
+		update: frag(`
+			uniform sampler2D uWater;
+			uniform float damping;
+			void main() {
+				vec4 info = texture(uWater, vUv);
+				float average = (
+					texture(uWater, vL).r + texture(uWater, vR).r +
+					texture(uWater, vT).r + texture(uWater, vB).r
+				) * 0.25;
+				info.g += (average - info.r) * 2.0;
+				info.g *= damping;
+				info.r = (info.r + info.g) * 0.999;
+				outColor = info;
+			}
+		`),
+		display: frag(`
+			uniform vec2 uRes;
+			uniform float uTime;
+			uniform sampler2D uWater;
+
+			float hash(vec2 p) {
+				p = fract(p * vec2(123.34, 456.21));
+				p += dot(p, p + 45.32);
+				return fract(p.x * p.y);
+			}
+
+			float noise(vec2 p) {
+				vec2 i = floor(p);
+				vec2 f = fract(p);
+				vec2 u = f * f * (3.0 - 2.0 * f);
+				return mix(
+					mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+					mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+					u.y
+				);
+			}
+
+			float fbm(vec2 p) {
+				float v = 0.0;
+				float a = 0.5;
+				for (int i = 0; i < 4; i++) {
+					v += a * noise(p);
+					p = p * 2.03 + vec2(17.0, 9.0);
+					a *= 0.5;
+				}
+				return v;
+			}
+
+			// Thin bright lines where the noise crosses its middle, like light focused by waves.
+			float caustic(vec2 p, float t) {
+				float a = 1.0 - abs(noise(p + vec2(t, -t * 0.7)) * 2.0 - 1.0);
+				float b = 1.0 - abs(noise(p * 1.6 + vec2(-t * 0.8, t) + 3.1) * 2.0 - 1.0);
+				return pow(a, 8.0) + pow(b, 10.0) * 0.6;
+			}
+
+			// A slow swell so the surface is never quite still.
+			float swell(vec2 p, float t) {
+				return fbm(p * 3.0 + vec2(t * 0.6, -t * 0.4));
+			}
+
+			void main() {
+				float aspect = uRes.x / uRes.y;
+				float t = uTime * 0.08;
+
+				// The surface normal from the ripples plus the swell.
+				float dx = texture(uWater, vL).r - texture(uWater, vR).r;
+				float dy = texture(uWater, vB).r - texture(uWater, vT).r;
+				vec2 sp = vec2(vUv.x * aspect, vUv.y);
+				float s = swell(sp, t);
+				vec2 ambient = vec2(swell(sp + vec2(0.01, 0.0), t) - s, swell(sp + vec2(0.0, 0.01), t) - s);
+				vec3 n = normalize(vec3(vec2(dx, dy) * ${NORMAL_STRENGTH.toFixed(1)} - ambient * 2.5, 1.0));
+
+				// What lies under the water, seen through it bent by the slope.
+				vec2 uv = vUv + n.xy * ${REFRACTION.toFixed(3)};
+				vec2 p = vec2(uv.x * aspect, uv.y);
+
+				// Where the caustics show: faint at the top behind the copy, stronger toward the bottom.
+				float band = (0.6 - uv.y) * 0.95 + fbm(p * 1.4 + vec2(-t, t * 0.5)) * 0.55 - 0.2;
+
+				// A left-to-right gradient, #392D69 to #B57BEE, its edge nudged by slow noise so the
+				// water has something to bend. v300 (#c4b5fd) tints the caustics and highlights.
+				vec3 v300 = vec3(0.769, 0.71, 0.992);
+				float across = clamp(uv.x + (fbm(p * 1.4 + vec2(-t, t * 0.5)) - 0.5) * 0.25, 0.0, 1.0);
+				vec3 col = mix(vec3(0.224, 0.176, 0.412), vec3(0.710, 0.482, 0.933), across);
+				col += v300 * caustic(p * 4.0, t * 3.0) * 0.22 * smoothstep(0.05, 0.7, band);
+
+				// Light on the surface: slopes facing it brighten, the rest darken, and steep ones glint.
+				vec3 light = normalize(vec3(-0.2, 0.35, 1.0));
+				vec3 halfway = normalize(light + vec3(0.0, 0.0, 1.0));
+				float shade = (dot(n, light) - light.z) * 4.0;
+				float spec = pow(max(dot(n, halfway), 0.0), 900.0);
+				col *= 1.0 + shade;
+				col += mix(v300, vec3(1.0), 0.4) * spec * 0.9;
+				col += v300 * (1.0 - n.z) * 1.5;
+
+				col += (hash(gl_FragCoord.xy + fract(uTime) * 91.0) - 0.5) * 0.07;
+				outColor = vec4(col, 1.0);
+			}
+		`),
+	};
+
+	type Program = { program: WebGLProgram; uniforms: Record<string, WebGLUniformLocation> };
+	type Target = {
+		fbo: WebGLFramebuffer;
+		width: number;
+		height: number;
+		texelX: number;
+		texelY: number;
+		attach: (unit: number) => number;
+	};
+	type DoubleTarget = { read: Target; write: Target; swap: () => void };
+
+	const canvas = document.querySelector<HTMLCanvasElement>("[data-hero-shader]");
+	const gl = canvas?.getContext("webgl2", { antialias: false, alpha: false, depth: false, stencil: false });
+
+	if (canvas && gl && gl.getExtension("EXT_color_buffer_float")) {
+		const compile = (type: number, source: string) => {
+			const shader = gl.createShader(type)!;
+			gl.shaderSource(shader, source);
+			gl.compileShader(shader);
+			return shader;
+		};
+
+		const vertex = compile(gl.VERTEX_SHADER, vertexSource);
+
+		const createProgram = (source: string): Program | null => {
+			const program = gl.createProgram()!;
+			gl.attachShader(program, vertex);
+			gl.attachShader(program, compile(gl.FRAGMENT_SHADER, source));
+			gl.bindAttribLocation(program, 0, "aPos");
+			gl.linkProgram(program);
+			if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+			const uniforms: Record<string, WebGLUniformLocation> = {};
+			const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+			for (let i = 0; i < count; i++) {
+				const name = gl.getActiveUniform(program, i)!.name;
+				uniforms[name] = gl.getUniformLocation(program, name)!;
+			}
+			return { program, uniforms };
+		};
+
+		const entries = Object.entries(sources).map(([name, source]) => [name, createProgram(source)] as const);
+
+		if (entries.every(([, program]) => program)) {
+			const programs = Object.fromEntries(entries) as Record<keyof typeof sources, Program>;
+
+			// One triangle that covers the screen.
+			gl.bindVertexArray(gl.createVertexArray());
+			gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+			gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+			gl.enableVertexAttribArray(0);
+			gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+			const use = ({ program }: Program) => {
+				gl.useProgram(program);
+				return program;
+			};
+
+			const blit = (target: Target | null) => {
+				if (target) {
+					gl.viewport(0, 0, target.width, target.height);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
+				} else {
+					gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+					gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+				}
+				gl.drawArrays(gl.TRIANGLES, 0, 3);
+			};
+
+			const createTarget = (width: number, height: number): Target => {
+				const texture = gl.createTexture()!;
+				gl.activeTexture(gl.TEXTURE0);
+				gl.bindTexture(gl.TEXTURE_2D, texture);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+				gl.texImage2D(gl.TEXTURE_2D, 0, gl.RG16F, width, height, 0, gl.RG, gl.HALF_FLOAT, null);
+				const fbo = gl.createFramebuffer()!;
+				gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+				gl.viewport(0, 0, width, height);
+				gl.clearColor(0, 0, 0, 1);
+				gl.clear(gl.COLOR_BUFFER_BIT);
+				return {
+					fbo,
+					width,
+					height,
+					texelX: 1 / width,
+					texelY: 1 / height,
+					attach(unit) {
+						gl.activeTexture(gl.TEXTURE0 + unit);
+						gl.bindTexture(gl.TEXTURE_2D, texture);
+						return unit;
+					},
+				};
+			};
+
+			const createDouble = (width: number, height: number): DoubleTarget => {
+				const pair = { read: createTarget(width, height), write: createTarget(width, height), swap() {} };
+				pair.swap = () => {
+					[pair.read, pair.write] = [pair.write, pair.read];
+				};
+				return pair;
+			};
+
+			// The grid keeps its short side at `base` and stretches to the canvas's aspect.
+			const gridSize = (base: number) => {
+				const aspect = gl.drawingBufferWidth / gl.drawingBufferHeight;
+				const long = Math.round(base * (aspect < 1 ? 1 / aspect : aspect));
+				return aspect >= 1 ? { w: long, h: base } : { w: base, h: long };
+			};
+
+			let water: DoubleTarget;
+
+			const resize = () => {
+				const rect = canvas.getBoundingClientRect();
+				const ratio = Math.min(window.devicePixelRatio || 1, 2) * DISPLAY_SCALE;
+				const width = Math.max(1, Math.round(rect.width * ratio));
+				const height = Math.max(1, Math.round(rect.height * ratio));
+				if (width === canvas.width && height === canvas.height && water) return;
+				canvas.width = width;
+				canvas.height = height;
+				const sim = gridSize(SIM_RESOLUTION);
+				water = createDouble(sim.w, sim.h);
+			};
+
+			const drop = (x: number, y: number, strength: number) => {
+				const p = programs.drop;
+				use(p);
+				gl.uniform1f(p.uniforms.aspectRatio, canvas.width / canvas.height);
+				gl.uniform2f(p.uniforms.point, x, y);
+				gl.uniform1f(p.uniforms.radius, DROP_RADIUS);
+				gl.uniform1f(p.uniforms.strength, strength);
+				gl.uniform1i(p.uniforms.uWater, water.read.attach(0));
+				blit(water.write);
+				water.swap();
+			};
+
+			const step = () => {
+				const p = programs.update;
+				use(p);
+				gl.uniform2f(p.uniforms.texelSize, water.read.texelX, water.read.texelY);
+				gl.uniform1f(p.uniforms.damping, DAMPING);
+				gl.uniform1i(p.uniforms.uWater, water.read.attach(0));
+				blit(water.write);
+				water.swap();
+			};
+
+			const render = (time: number) => {
+				const p = programs.display;
+				use(p);
+				gl.uniform2f(p.uniforms.texelSize, water.read.texelX, water.read.texelY);
+				gl.uniform2f(p.uniforms.uRes, canvas.width, canvas.height);
+				gl.uniform1f(p.uniforms.uTime, time / 1000);
+				gl.uniform1i(p.uniforms.uWater, water.read.attach(0));
+				blit(null);
+			};
+
+			resize();
+			canvas.classList.add("is-live");
+
+			if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+				render(12000);
+				new ResizeObserver(() => {
+					resize();
+					render(12000);
+				}).observe(canvas);
+			} else {
+				new ResizeObserver(resize).observe(canvas);
+
+				// The pointer in canvas UV (y up). Each frame lays drops along the path since the last one.
+				const pointer = { x: 0, y: 0, prevX: 0, prevY: 0, moved: false, seen: false };
+				const taps: { x: number; y: number }[] = [];
+
+				const toUv = (event: PointerEvent) => {
+					const rect = canvas.getBoundingClientRect();
+					if (event.clientY < rect.top || event.clientY > rect.bottom) return null;
+					return {
+						x: (event.clientX - rect.left) / rect.width,
+						y: 1 - (event.clientY - rect.top) / rect.height,
+					};
+				};
+
+				window.addEventListener(
+					"pointermove",
+					(event) => {
+						const uv = toUv(event);
+						if (!uv) {
+							pointer.seen = false;
+							return;
+						}
+						if (!pointer.seen) {
+							pointer.prevX = uv.x;
+							pointer.prevY = uv.y;
+							pointer.seen = true;
+						}
+						pointer.x = uv.x;
+						pointer.y = uv.y;
+						pointer.moved = true;
+					},
+					{ passive: true },
+				);
+
+				window.addEventListener(
+					"pointerdown",
+					(event) => {
+						const uv = toUv(event);
+						if (uv) taps.push(uv);
+					},
+					{ passive: true },
+				);
+
+				// One loop at most, paused while the hero is off screen or the tab is hidden.
+				let visible = true;
+				let frame = 0;
+				let lastTime = performance.now();
+				let pending = 0;
+
+				const start = () => {
+					if (!frame && visible && !document.hidden) {
+						lastTime = performance.now();
+						frame = requestAnimationFrame(loop);
+					}
+				};
+
+				const loop = (time: number) => {
+					frame = 0;
+					if (!visible || document.hidden) return;
+					const dt = Math.min((time - lastTime) / 1000, 1 / 20);
+					lastTime = time;
+
+					if (pointer.moved) {
+						const aspect = canvas.width / canvas.height;
+						const dx = (pointer.x - pointer.prevX) * aspect;
+						const dy = pointer.y - pointer.prevY;
+						const count = Math.min(MAX_TRAIL_DROPS, Math.ceil(Math.hypot(dx, dy) / (DROP_RADIUS * 0.35)));
+						for (let i = 1; i <= count; i++) {
+							const k = i / count;
+							drop(
+								pointer.prevX + (pointer.x - pointer.prevX) * k,
+								pointer.prevY + (pointer.y - pointer.prevY) * k,
+								TRAIL_STRENGTH,
+							);
+						}
+						pointer.prevX = pointer.x;
+						pointer.prevY = pointer.y;
+						pointer.moved = false;
+					}
+
+					for (const tap of taps.splice(0)) drop(tap.x, tap.y, TAP_STRENGTH);
+
+					// Step the waves at a fixed rate so they spread at the same speed on any display.
+					pending += dt * STEPS_PER_SECOND;
+					for (; pending >= 1; pending--) step();
+
+					render(time);
+					frame = requestAnimationFrame(loop);
+				};
+
+				new IntersectionObserver(([entry]) => {
+					visible = !!entry?.isIntersecting;
+					start();
+				}).observe(canvas);
+				document.addEventListener("visibilitychange", start);
+			}
+		}
+	}
+</script>

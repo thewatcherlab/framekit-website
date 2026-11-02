@@ -1,0 +1,25 @@
+---
+import { site } from "../config/site";
+---
+
+<details
+	class="group fixed right-4 bottom-4 z-40 flex flex-col-reverse items-end gap-tight sm:right-6 sm:bottom-6"
+>
+	<summary
+		class="flex h-10 cursor-pointer list-none items-center gap-inline rounded-buttons border border-graphite-ink bg-graphite-ink px-4 text-caption font-medium text-on-action hover:border-accent-strong hover:bg-accent-strong focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-pulse"
+	>
+		<span class="status-dot size-2 rounded-full bg-lime-pulse" aria-hidden="true"></span>
+		<span class="group-open:hidden">{site.chat.launcher}</span>
+		<span class="hidden group-open:inline">Close</span>
+	</summary>
+	<div
+		class="w-80 max-w-[calc(100vw-3rem)] rounded-overlay border border-hairline bg-glass p-card shadow-float backdrop-blur-[12px]"
+	>
+		<p class="text-body-sm text-charcoal-body">{site.chat.title}</p>
+		<p class="mt-inline flex items-center gap-inline text-caption text-slate-caption">
+			<span class="status-dot size-2 shrink-0 rounded-full bg-lime-pulse" aria-hidden="true"></span>
+			{site.chat.status}
+		</p>
+		<p class="mt-card text-caption text-slate-caption">{site.chat.body}</p>
+	</div>
+</details>
