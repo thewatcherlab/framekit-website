@@ -9,7 +9,7 @@ const repo = "https://github.com/fiqryq/frame";
 export const frame = {
 	name: "FrameKit",
 	version: "0.1",
-	description: "Screenshots, scrolling captures and screen recordings from the menu bar, with an editor and a studio to finish them.",
+	description: "Menu bar screenshots, scrolling captures, and screen recordings. Markup editor and Recorder Studio included.",
 	email,
 	repo,
 	/** The newest release on GitHub. The repo has to be public for visitors to reach it. */
@@ -96,7 +96,7 @@ export const changelog: {
 	{
 		version: "0.1",
 		date: "25 Oct 2026",
-		description: "The first beta: a screenshot tool and a screen recorder in the menu bar, with an editor for each.",
+		description: "First beta. Menu bar screenshots and screen recorder. Markup editor and Recorder Studio.",
 		features: [
 			{
 				title: "Screenshots",
