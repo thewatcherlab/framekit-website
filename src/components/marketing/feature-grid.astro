@@ -16,7 +16,7 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 	<article class:list={[card, "area-scroll md:flex-row md:items-center md:gap-8"]}>
 		<div class="md:flex-1">
 			<h2 class={title}>Scrolling capture</h2>
-			<p class={body}>Stitch a whole page into one long image while you scroll, or let Auto-Scroll scroll it for you.</p>
+			<p class={body}>Stitches scrolled content into one image. Manual scroll or Auto-Scroll. Works down and to the right.</p>
 		</div>
 		<div class="mt-8 flex items-end justify-center gap-5 md:mt-0 md:flex-1" aria-hidden="true">
 			<div class="relative h-40 w-44 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
@@ -66,13 +66,13 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 			</g>
 		</svg>
 		<h2 class={title}>Text from the screen</h2>
-		<p class={body}>Draw a box around any words on screen and copy them as text.</p>
+		<p class={body}>Select on-screen text and copy it.</p>
 	</article>
 
 	<!-- Markup editor: a shot with a box, a label, and an arrow that draws itself in. -->
 	<article class:list={[card, "area-markup"]}>
 		<h2 class={title}>Markup editor</h2>
-		<p class={body}>Point, box and label what matters, then copy or save the finished shot.</p>
+		<p class={body}>Arrows, boxes, text, redact, and crop. Copy or save as PNG.</p>
 		<div class="mt-8 flex flex-1 flex-col items-center justify-end gap-4" aria-hidden="true">
 			<div class="relative w-full max-w-64 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
 				<div class="mb-3 flex gap-1.5">
@@ -123,7 +123,7 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 			<rect x="9.5" y="19.3" width="9" height="2.4" rx="1.2" class="fill-stone-50 opacity-0 transition delay-75 duration-300 group-hover:opacity-100"></rect>
 		</svg>
 		<h2 class={title}>Floating preview</h2>
-		<p class={body}>Every capture waits in the corner. Copy it, save it, drag it into an app or open it in the editor.</p>
+		<p class={body}>Corner thumbnail after each capture. Copy, save, drag, or open in the editor.</p>
 	</article>
 
 	<!-- Screen recording: the record dot pulses. -->
@@ -135,13 +135,13 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 			<circle cx="14" cy="12.5" r="3.5" class="fill-rose-500"></circle>
 		</svg>
 		<h2 class={title}>Screen recording</h2>
-		<p class={body}>Record the screen with your camera, microphone and system audio.</p>
+		<p class={body}>Records area, window, or display. Camera, microphone, and system audio optional.</p>
 	</article>
 
 	<!-- Notch teleprompter: the script rolls up out of the notch while the recording runs. -->
 	<article class:list={[card, "area-notch"]}>
 		<h2 class={title}>Notch teleprompter</h2>
-		<p class={body}>Your notes sit under the notch while you record, and stay out of the recording.</p>
+		<p class={body}>Script under the notch while recording. Excluded from the capture.</p>
 		<div class="mt-8 -mb-6 flex flex-1 items-end justify-center sm:-mb-7" aria-hidden="true">
 			<div class="w-full max-w-64 overflow-hidden rounded-t-2xl border border-b-0 border-stone-200 bg-white px-4 pb-6 shadow-sm">
 				<div class="mx-auto h-28 w-44 overflow-hidden rounded-b-3xl bg-stone-900 px-5 pt-4">
@@ -170,7 +170,7 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 	<article class:list={[card, "area-studio md:flex-row md:items-center md:gap-8"]}>
 		<div class="md:flex-1">
 			<h2 class={title}>Recorder Studio</h2>
-			<p class={body}>Zoom in on the action, smooth the cursor, mask passwords and add captions, then export.</p>
+			<p class={body}>Zooms, cursor smoothing, field masks, captions. Export MP4, GIF, or WebP.</p>
 		</div>
 		<div class="mt-8 flex w-full flex-col items-center gap-3 md:mt-0 md:flex-1" aria-hidden="true">
 			<div class="relative aspect-[16/10] w-full max-w-72 overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
@@ -209,7 +209,7 @@ const icon = "mb-5 size-10 overflow-visible text-stone-800";
 			<circle cx="14" cy="14" r="2.6" class="origin-center fill-violet-500 transition duration-300 group-hover:scale-125"></circle>
 		</svg>
 		<h2 class={title}>Native Mac app</h2>
-		<p class={body}>Lives in the menu bar and keeps your captures on your Mac. Made for {frame.requirement}.</p>
+		<p class={body}>Menu bar app. Captures stay on disk. Requires {frame.requirement}.</p>
 	</article>
 </div>
 
